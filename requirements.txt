@@ -1,0 +1,3 @@
+pgzero
+pygame
+numpy
