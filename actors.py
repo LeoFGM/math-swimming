@@ -1,10 +1,11 @@
 from pgzero.actor import Actor
+
+from pgzero.keyboard import keyboard
 from settings import settings
 from random import randint
 
-
-
 class GameActors:
+
 #All objects images
     game_name_states = ["title", "title_2", "title_3", "title_4"]  # Main title images
     gamemode_states = ["selgamemode_1", "selgamemode_2", "selgamemode_3", "selgamemode_4"]  # Select gamemode images
@@ -18,13 +19,16 @@ class GameActors:
     swimmer_states_hit = ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2","swimmer_3"]  # swimmer hit animation images
     powerup_states = ["powerup", "powerup_1", "powerup_2"]  # powerup animation images
     coin_states = ["coin", "coin_1", "coin_2"]  # coin animation images
+    q_block_states = ["question_block", "question_block_1"]
 
 #All animation variables
     number_of_updates = 0  # titles
+    number_of_updates1 = 0
     number_of_updates_log = 0  # logs
     number_of_updates_swimmer = 0
     number_of_updates_powerup = 0
     number_of_updates_coin = 0
+    number_of_updates_block = 0
     hit_updates = 0
 
 #Background variables
@@ -38,7 +42,7 @@ class GameActors:
     powerups = []
     coins = []
     x = 250
-
+    current_screen = 'start'
     def __init__(self):
         self.start = Actor("start", pos=(settings.CENTER_X, 550))
         self.speedrun = Actor("speedrun", pos=(settings.CENTER_X - 200, 450))
@@ -57,21 +61,25 @@ class GameActors:
     def new_log(self):
         global logs, x
         log_new = Actor("log")
-        log_new.pos = x, randint(-800, -500)
-        logs.append(log_new)
-        x += 150
+        log_new.pos = self.x, randint(-800, -500)
+        self.logs.append(log_new)
+        self.x += 150
 
     def new_coin(self):
         global coins
         coin_new = Actor("coin")
         coin_new.pos = randint(175, 625), randint(-800, -300)
-        coins.append(coin_new)
+        self.coins.append(coin_new)
 
     def new_power_up(self):
         global powerups, logs
         powerup_new = Actor("powerup")
-        powerup_new.pos = logs[randint(0, 2)].x, logs[randint(0, 2)].y + 125
-        powerups.append(powerup_new)
+        powerup_new.pos = self.logs[randint(0, 2)].x, self.logs[randint(0, 2)].y + 125
+        self.powerups.append(powerup_new)
+
+    def create_actors(self, whole):
+        for i in whole:
+            i.draw()
 
     def draw_start_screen(self):
         self.start.draw()
@@ -91,12 +99,6 @@ class GameActors:
         self.extreme.draw()
         self.goback.draw()
 
-    def display_diff(self):
-        self.difficulty.draw()
-        self.easy.draw()
-        self.medium.draw()
-        self.hard.draw()
-        self.extreme.draw()
 
     def actors_image_change(self, actor, states):
         current = states.pop(0)
@@ -140,17 +142,26 @@ class GameActors:
         global neg
         screen.clear()
         for i in range(0, 3):
-            bg = screen.blit("river", (0, i * (600 * neg) + scroll))
-            backgrounds.append(bg)
-            neg = -1
+            bg = screen.blit("river", (0, i * (600 * self.neg) + self.scroll))
+            self.backgrounds.append(bg)
+            self.neg = -1
 
     def moving_bg(self):
         global scroll
-        for back in backgrounds:
-            scroll += 0.0003
-        if abs(scroll) > 600:
-            scroll = 0
+        for back in self.backgrounds:
+            self.scroll += 0.0003
+        if abs(self.scroll) > 600:
+            self.scroll = 0
 
+    def moving(self, actor, objects):
+        if keyboard.left and (actor.x > 190):
+            actor.x -= 3
+        if keyboard.right and (actor.x < 625):
+            actor.x += 3
+        if keyboard.left and (actor.x > 190) and objects:
+            actor.x -= 5
+        if keyboard.right and (actor.x < 625) and objects:
+            actor.x += 5
 
 
 

@@ -4,7 +4,6 @@ from pgzero.clock import clock
 from pgzero.keyboard import keyboard
 from actors import *
 from changevar import *
-from screen import *
 
 #New actors
 
@@ -23,15 +22,7 @@ def index_lists(whole):
 
 #Mobility functions
 
-def moving(screen, objects):
-    if keyboard.left and (swimmer.x > 190) and screen:
-        swimmer.x -= 3
-    if keyboard.right and (swimmer.x < 625) and screen:
-        swimmer.x += 3
-    if keyboard.left and (swimmer.x > 190) and objects:
-        swimmer.x -= 5
-    if keyboard.right and (swimmer.x < 625) and objects:
-        swimmer.x += 5
+
 
 #Changing screens
 
