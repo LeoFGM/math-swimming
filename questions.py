@@ -31,6 +31,7 @@ class GameQuestions:
         self.question_e = self.questions_e.pop(0)
         self.answer = None
 
+
     def update_game_state_points(self, i, sound):
         correct_answer_index = self.question_e[5]
         if i == correct_answer_index and self.question_screen == 'points':

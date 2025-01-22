@@ -5,17 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5ad55da-d09b-46c1-b670-11ec48f2bb6b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/levels.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actors.py" beforeDir="false" afterPath="$PROJECT_DIR$/actors.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/animations.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/changevar.py" beforeDir="false" afterPath="$PROJECT_DIR$/changevar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garbage.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/10- Power to the hero.ogg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/7- Nerve monster.ogg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/questions.py" beforeDir="false" afterPath="$PROJECT_DIR$/questions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screen.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

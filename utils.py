@@ -15,19 +15,8 @@ def index_lists(whole):
     for index, each  in enumerate(whole):
         index += 1
 
-#Drawing functions
-
-
-
-
-#Mobility functions
-
-
-
-#Changing screens
-
-def screen_change():
-    return False, True
+def play_song(sound, name):
+    sound.play(str(name))
 
 
 

@@ -48,24 +48,19 @@ action_2 = 0
 game_clocks = GameClocks()
 
 def speedrun_level_easy():
-    global action_2, show_count, action1,last_collision, not_hit, hit_animation, powerup
-    global powerup_collision, logs_already_created, powerups_already_created, question_screen
-    if action_2 == 0:
-        if not logs_already_created:
-            for i in range(0, 3):
-                actors.new_log()
-                logs_already_created = True
-        if not powerups_already_created:
-            for i in range(0, 1):
-                actors.new_power_up()
-            powerups_already_created = True
-    action_2 = 1
+    global action_2, last_collision, not_hit, hit_animation, powerup_collision, current_screen
+    if game_clocks.action1 == 0:
+        for i in range(0, 3):
+            actors.new_log()
+        for i in range(0, 1):
+            actors.new_power_up()
+    game_clocks.action1 = 1
     index_lists(actors.logs)
     game_clocks.show_count = True
     ts = time.time()
-    if game_clocks.show_count and game_clocks.action1 == 0:
+    if game_clocks.show_count and game_clocks.action == 0:
         game_clocks.countup()
-        game_clocks.action1 = 1
+        game_clocks.action = 1
         for log in actors.logs:
             log.y = randint(-800, -300)
     if game_questions.answer == 'correct' and ((game_clocks.count_max - game_clocks.count) >= 15):
@@ -75,7 +70,7 @@ def speedrun_level_easy():
         game_clocks.count_max += 10
         game_questions.answer = None
     if game_clocks.count == game_clocks.count_max:
-        actors.current_screen = 'gameover_speed'
+        current_screen = 'gameover_speed'
     if not_hit:
         if actors.number_of_updates_swimmer == 10:
             actors.actors_image_change(actors.swimmer, actors.swimmer_states)
@@ -144,27 +139,22 @@ def speedrun_level_easy():
         actors.q_block.y = randint(-2000, -1600)
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
-        actors.current_screen = 'question_time'
+        current_screen = 'question_time'
         game_questions.question_screen = 'speed'
     actors.moving(actors.swimmer, powerup_collision)
 
 def points_level_easy():
-    global action, action_1, show_count, score, number_of_updates_log, last_collision, hit_animation, hit_updates, number_of_updates_coin
-    global points_easy_screen, not_hit, number_of_updates_swimmer, logs_already_created, coins_already_created, question_time, point_question_e
-    if action_1 == 0:
-        if not logs_already_created:
-            for i in range(0, 3):
-                actors.new_log()
-            logs_already_created = True
-        if not coins_already_created:
-            for i in range(0, 20):
-                actors.new_coin()
-            coins_already_created = True
-    action_1 = 1
+    global  action_1, current_screen, logs_already_created, coins_already_created, not_hit, last_collision
+    if game_clocks.action1 == 0:
+        for i in range(0, 3):
+            actors.new_log()
+        for i in range(0, 20):
+            actors.new_coin()
+    game_clocks.action1 = 1
     index_lists(actors.logs)
-    show_count = True
+    game_clocks.show_count = True
     ts = time.time()
-    if show_count and game_clocks.action == 0:
+    if game_clocks.show_count and game_clocks.action == 0:
         game_clocks.countdown()
         game_clocks.action = 1
         for log in actors.logs:
@@ -176,7 +166,7 @@ def points_level_easy():
         game_clocks.score -= 10
         game_questions.answer = None
     if game_clocks.count_down_max == 0:
-        actors.current_screen = 'gameover_points'
+        current_screen = 'gameover_points'
     if not_hit:
         if actors.number_of_updates_swimmer == 10:
             actors.actors_image_change(actors.swimmer, actors.swimmer_states)
@@ -237,7 +227,7 @@ def points_level_easy():
         actors.q_block.y = randint(-2000, -1600)
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
-        actors.current_screen = 'question_time'
+        current_screen = 'question_time'
         game_questions.question_screen = 'points'
     actors.moving(actors.swimmer, None)
 
@@ -245,26 +235,28 @@ def points_level_easy():
 
 actors = GameActors()
 game_questions = GameQuestions()
+current_screen = 'start'
+
 #Game state variables
 
 def draw():
-    print(actors.current_screen)
+    print(current_screen)
     screen.clear()
     screen.blit("river", (0, 0))
-    if actors.current_screen == 'start':
+    if current_screen == 'start':
         actors.draw_start_screen()
-    elif actors.current_screen == 'gamemode':
+    elif current_screen == 'gamemode':
         actors.draw_gamemode_screen()
-    elif actors.current_screen == 'difficulty_speed' or actors.current_screen == 'difficulty_points':
+    elif current_screen == 'difficulty_speed' or current_screen == 'difficulty_points':
         actors.draw_difficulty_screen()
-    elif actors.current_screen == 'speedrun_easy':
+    elif current_screen == 'speedrun_easy':
         actors.set_background(screen)
         actors.swimmer.draw()
         actors.q_block.draw()
         screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
         actors.create_actors(actors.logs)
         actors.create_actors(actors.powerups)
-    elif actors.current_screen == 'points_easy':
+    elif current_screen == 'points_easy':
         actors.set_background(screen)
         actors.swimmer.draw()
         actors.q_block.draw()
@@ -272,26 +264,26 @@ def draw():
         screen.draw.text("Score: " + str(game_clocks.score), color="orange red", topleft=(670,20), fontsize=40)
         actors.create_actors(actors.logs)
         actors.create_actors(actors.coins)
-    elif actors.current_screen == 'speedrun_medium':
+    elif current_screen == 'speedrun_medium':
         actors.set_background(screen)
         actors.swimmer.draw()
         screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
-    elif actors.current_screen == 'points_medium':
+    elif current_screen == 'points_medium':
         actors.set_background(screen)
         actors.swimmer.draw()
         screen.draw.text("Time: " + str(game_clocks.count_down_max), color="orange red", topleft=(20,20), fontsize=40)
         screen.draw.text("Score: " + str(game_clocks.score), color="orange red", topleft=(670,20), fontsize=40)
     #Game over screens:
-    elif actors.current_screen == 'gameover_speed':
+    elif current_screen == 'gameover_speed':
         actors.set_background(screen)
         screen.draw.text("You completed the level in: " + str(game_clocks.count) + " seconds!", color="black", center=settings.CENTER, fontsize=60)
         actors.goback.draw()
-    elif actors.current_screen == 'gameover_points':
+    elif current_screen == 'gameover_points':
         actors.set_background(screen)
         screen.draw.text("You ended with: " + str(game_clocks.score) + " points!", color="black", center=settings.CENTER, fontsize=60)
         actors.goback.draw()
     #Question screen
-    elif actors.current_screen == 'question_time':
+    elif current_screen == 'question_time':
         print(f"Question: {game_questions.questions_e[0]}")
         print(f"Type of question: {type(game_questions.questions_e[0])}")
         actors.set_background(screen)
@@ -307,70 +299,77 @@ def draw():
 
 
 def on_mouse_down(pos):
-    global show_count, game_over_coin, question_time, score, count_max
+    global current_screen
     clicked_actor = actors.handle_mouse_down(pos)
-    if clicked_actor == 'start' and actors.current_screen == "start":
+    if clicked_actor == 'start' and current_screen == "start":
         sounds.select.play()
-        actors.current_screen = 'gamemode'
-    elif clicked_actor == 'speedrun' and actors.current_screen == "gamemode":
+        current_screen = 'gamemode'
+    elif clicked_actor == 'speedrun' and current_screen == "gamemode":
         sounds.select.play()
-        actors.current_screen = 'difficulty_speed'
-    elif clicked_actor == 'pointsmania' and actors.current_screen == "gamemode":
+        current_screen = 'difficulty_speed'
+    elif clicked_actor == 'pointsmania' and current_screen == "gamemode":
         sounds.select.play()
-        actors.current_screen = 'difficulty_points'
+        current_screen = 'difficulty_points'
     elif clicked_actor == 'goback':
         sounds.goback.play()
-        if actors.current_screen == 'gameover_speed' or actors.current_screen == 'gameover_points':
+        if current_screen == 'gameover_speed' or current_screen == 'gameover_points':
             music.play("loadscreen")
         game_clocks.reset_variables()
-        actors.current_screen = 'start'
-    elif clicked_actor == 'easy' and (actors.current_screen == 'difficulty_speed' or actors.current_screen == 'difficulty_points'):
+        game_questions.questions_e = game_questions.questions_e
+        actors.x = 250
+        actors.logs.clear()
+        actors.coins.clear()
+        actors.powerups.clear()
+        current_screen = 'start'
+    elif clicked_actor == 'easy' and (current_screen == 'difficulty_speed' or current_screen == 'difficulty_points'):
         shuffle(game_questions.questions_e)
-        if actors.current_screen == 'difficulty_speed':
+        if current_screen == 'difficulty_speed':
             sounds.select.play()
             music.play("strength")
-            actors.current_screen = 'speedrun_easy'
-        elif actors.current_screen == 'difficulty_points':
+            current_screen = 'speedrun_easy'
+        elif current_screen == 'difficulty_points':
             sounds.select.play()
             music.play("behemoth")
-            actors.current_screen = 'points_easy'
-    elif clicked_actor == 'medium' and (actors.current_screen == 'difficulty_speed' or actors.current_screen == 'difficulty_points'):
-        if actors.current_screen == 'difficulty_speed':
+            current_screen = 'points_easy'
+    elif clicked_actor == 'medium' and (current_screen == 'difficulty_speed' or current_screen == 'difficulty_points'):
+        if current_screen == 'difficulty_speed':
             sounds.select.play()
             music.play("monster")
-            actors.current_screen = 'speedrun_medium'
-        elif actors.current_screen == 'difficulty_points':
+            current_screen = 'speedrun_medium'
+        elif current_screen == 'difficulty_points':
             sounds.select.play()
             music.play("hero")
-            actors.current_screen = 'points_medium'
-    elif actors.current_screen == "question_time":
+            current_screen = 'points_medium'
+    elif current_screen == "question_time":
         for index, box in enumerate(game_questions.answer_boxes, start=1):
             print(f"Checking box {index} at position {pos}")
             if box.collidepoint(pos) and game_questions.question_screen == 'points':
-                actors.current_screen, game_questions.answer = game_questions.update_game_state_points(index, sounds)
+                current_screen, game_questions.answer = game_questions.update_game_state_points(index, sounds)
                 game_questions.question_e = game_questions.questions_e.pop(0)
+                game_questions.questions_e.append(game_questions.question_e)
             elif box.collidepoint(pos) and game_questions.question_screen == 'speed':
                 print(f"Box {index} clicked, updating game state")
-                actors.current_screen, game_questions.answer = game_questions.update_game_state_speed(index, sounds)
+                current_screen, game_questions.answer = game_questions.update_game_state_speed(index, sounds)
                 game_questions.question_e = game_questions.questions_e.pop(0)
+                game_questions.questions_e.append(game_questions.question_e)
 
 
 
 
 def update():
-    if actors.current_screen == 'start':
+    if current_screen == 'start':
         if actors.number_of_updates == 15:
             actors.actors_image_change(actors.gamename, actors.game_name_states)
             actors.number_of_updates = 0
         else:
             actors.number_of_updates += 1
-    elif actors.current_screen == 'gamemode':
+    elif current_screen == 'gamemode':
         if actors.number_of_updates == 15:
             actors.actors_image_change(actors.gamemode, actors.gamemode_states)
             actors.number_of_updates = 0
         else:
             actors.number_of_updates += 1
-    elif actors.current_screen == 'difficulty_speed' or actors.current_screen == 'difficulty_points':
+    elif (current_screen == 'difficulty_speed') or (current_screen == 'difficulty_points'):
         if actors.number_of_updates1 == 3:
             actors.actors_image_change(actors.difficulty, actors.title_states_diff)
             actors.actors_image_change(actors.easy, actors.title_states_easy)
@@ -383,15 +382,15 @@ def update():
                 actors.number_of_updates1 = 0
         else:
             actors.number_of_updates1 += 1
-    elif actors.current_screen == 'speedrun_easy':
+    elif current_screen == 'speedrun_easy':
         speedrun_level_easy()
         actors.moving_bg()
-    elif actors.current_screen == 'points_easy':
+    elif current_screen == 'points_easy':
         points_level_easy()
         actors.moving_bg()
-    elif actors.current_screen == 'speedrun_medium':
+    elif current_screen == 'speedrun_medium':
         actors.moving_bg()
-    elif actors.current_screen == 'points_medium':
+    elif current_screen == 'points_medium':
         actors.moving_bg()
     #Question interactions
 

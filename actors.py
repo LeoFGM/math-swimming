@@ -42,7 +42,6 @@ class GameActors:
     powerups = []
     coins = []
     x = 250
-    current_screen = 'start'
     def __init__(self):
         self.start = Actor("start", pos=(settings.CENTER_X, 550))
         self.speedrun = Actor("speedrun", pos=(settings.CENTER_X - 200, 450))

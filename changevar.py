@@ -14,7 +14,6 @@ powerup_collision = False
 
 
 class GameClocks:
-
     def __init__(self):
         self.count_max = 60
         self.count_down_max = 60
