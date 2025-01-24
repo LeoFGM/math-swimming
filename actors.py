@@ -56,6 +56,8 @@ class GameActors:
         self.goback = Actor("goback", pos=(50, 580))
         self.q_block = Actor("question_block", pos=(settings.CENTER_X, randint(-2000, -1600)))
         self.swimmer = Actor("swimmer", pos=(settings.CENTER_X, 550))
+        self.not_hit = True
+        self.powerup_collision = False
 
     def new_log(self):
         global logs, x
@@ -79,6 +81,12 @@ class GameActors:
     def create_actors(self, whole):
         for i in whole:
             i.draw()
+
+    def stop_swimmer_hit_animation(self):
+        self.not_hit = True
+
+    def stop_powerup(self):
+        self.powerup_collision = False
 
     def draw_start_screen(self):
         self.start.draw()
@@ -152,15 +160,15 @@ class GameActors:
         if abs(self.scroll) > 600:
             self.scroll = 0
 
-    def moving(self, actor, objects):
+    def moving(self, actor, objects, quantity, quantity2):
         if keyboard.left and (actor.x > 190):
-            actor.x -= 3
+            actor.x -= quantity
         if keyboard.right and (actor.x < 625):
-            actor.x += 3
+            actor.x += quantity
         if keyboard.left and (actor.x > 190) and objects:
-            actor.x -= 5
+            actor.x -= quantity2
         if keyboard.right and (actor.x < 625) and objects:
-            actor.x += 5
+            actor.x += quantity2
 
 
 

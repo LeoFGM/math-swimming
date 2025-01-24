@@ -1,17 +1,6 @@
 from pgzero import clock
 
-
-logs_already_created = False
-powerups_already_created = False
-coins_already_created = False
 last_collision = 0
-hit_animation = False
-not_hit = True
-powerup_collision = False
-
-
-
-
 
 class GameClocks:
     def __init__(self):
@@ -27,7 +16,7 @@ class GameClocks:
         if self.count < self.count_max:
             self.count += 1
             clock.schedule(self.countup, 1)
-        elif self.count == self.count_max:
+        elif self.count >= self.count_max:
             return 'gameover_speed'
 
     def countdown(self):

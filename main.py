@@ -1,5 +1,7 @@
+import random
+
 import pgzrun
-from random import randint, shuffle
+from random import randint, shuffle, choice, choices
 from actors import GameActors
 from settings import settings
 
@@ -34,13 +36,9 @@ music.play("loadscreen")
 
 #levels
 
-def stop_powerup():
-    global powerup_collision
-    powerup_collision = False
 
-def stop_swimmer_hit_animation():
-    global hit_animation, not_hit
-    not_hit = True
+
+
 
 action_1 = 0
 action_2 = 0
@@ -48,7 +46,7 @@ action_2 = 0
 game_clocks = GameClocks()
 
 def speedrun_level_easy():
-    global action_2, last_collision, not_hit, hit_animation, powerup_collision, current_screen
+    global action_2, last_collision, current_screen
     if game_clocks.action1 == 0:
         for i in range(0, 3):
             actors.new_log()
@@ -63,31 +61,31 @@ def speedrun_level_easy():
         game_clocks.action = 1
         for log in actors.logs:
             log.y = randint(-800, -300)
-    if game_questions.answer == 'correct' and ((game_clocks.count_max - game_clocks.count) >= 15):
+    if game_questions.answer == 'correct':
         game_clocks.count_max -= 10
         game_questions.answer = None
     elif game_questions.answer == 'incorrect':
         game_clocks.count_max += 10
         game_questions.answer = None
-    if game_clocks.count == game_clocks.count_max:
+    if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
-    if not_hit:
+    if actors.not_hit:
         if actors.number_of_updates_swimmer == 10:
             actors.actors_image_change(actors.swimmer, actors.swimmer_states)
             actors.number_of_updates_swimmer = 0
         else:
             actors.number_of_updates_swimmer += 1
-    if not not_hit:
+    if not actors.not_hit:
         if actors.hit_updates == 6:
             actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
             actors.hit_updates = 0
         else:
             actors.hit_updates += 1
-            clock.schedule(stop_swimmer_hit_animation, 3)
+            clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for log in actors.logs:
-        if log.y < 600 and not powerup_collision:
+        if log.y < 600 and not actors.powerup_collision:
             log.y += 2
-        elif log.y < 600 and powerup_collision:
+        elif log.y < 600 and actors.powerup_collision:
             log.y += 3
         else:
             log.y = randint(-800, -500)
@@ -100,14 +98,14 @@ def speedrun_level_easy():
             game_clocks.count_max += 3
             last_collision = ts
             sounds.hit.play()
-            not_hit = False
+            actors.not_hit = False
     for powerup in actors.powerups:
-        if powerup.y < 600 and not powerup_collision:
+        if powerup.y < 600 and not actors.powerup_collision:
             powerup.y += 2
-        elif powerup.y < 0 and powerup_collision:
-            powerup.y = randint(-800, -500)
+        elif powerup.y < 0 and actors.powerup_collision:
+            powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
         else:
-            powerup.y = randint(-800, -500)
+            powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
         if actors.number_of_updates_powerup == 10:
             actors.actors_image_change(powerup, actors.powerup_states)
             actors.number_of_updates_powerup = 0
@@ -121,12 +119,12 @@ def speedrun_level_easy():
             if actors.q_block.colliderect(powerup):
                 powerup.y += 75
         if actors.swimmer.colliderect(powerup):
-            powerup_collision = True
+            actors.powerup_collision = True
             game_clocks.count_max -= 5
             music.stop()
             music.play("stasis")
             music.fadeout(5)
-            clock.schedule(stop_powerup, 5)
+            clock.schedule(actors.stop_powerup, 5)
             clock.schedule(change_music, 5)
     if actors.q_block.y < 600:
         actors.q_block.y += 2
@@ -141,10 +139,10 @@ def speedrun_level_easy():
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
         game_questions.question_screen = 'speed'
-    actors.moving(actors.swimmer, powerup_collision)
+    actors.moving(actors.swimmer, actors.powerup_collision, quantity= 3, quantity2= 5)
 
 def points_level_easy():
-    global  action_1, current_screen, logs_already_created, coins_already_created, not_hit, last_collision
+    global  action_1, current_screen, last_collision
     if game_clocks.action1 == 0:
         for i in range(0, 3):
             actors.new_log()
@@ -167,19 +165,19 @@ def points_level_easy():
         game_questions.answer = None
     if game_clocks.count_down_max == 0:
         current_screen = 'gameover_points'
-    if not_hit:
+    if actors.not_hit:
         if actors.number_of_updates_swimmer == 10:
             actors.actors_image_change(actors.swimmer, actors.swimmer_states)
             actors.number_of_updates_swimmer = 0
         else:
             actors.number_of_updates_swimmer += 1
-    if not not_hit:
+    if not actors.not_hit:
         if actors.hit_updates == 6:
             actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
             actors.hit_updates = 0
         else:
             actors.hit_updates += 1
-        clock.schedule(stop_swimmer_hit_animation, 3)
+        clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for log in actors.logs:
         if log.y < 600:
             log.y += 2
@@ -194,12 +192,12 @@ def points_level_easy():
             game_clocks.score -= 3
             last_collision = ts
             sounds.hit.play()
-            not_hit = False
+            actors.not_hit = False
     for coin in actors.coins:
         if coin.y < 600:
             coin.y += 2
         else:
-            coin.pos = randint(175, 625), randint(-800, -200)
+            coin.pos = randint(175, 625), randint(-800, -100)
         for log in actors.logs:
             if coin.colliderect(log):
                 coin.y += 30
@@ -229,7 +227,90 @@ def points_level_easy():
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
         game_questions.question_screen = 'points'
-    actors.moving(actors.swimmer, None)
+    actors.moving(actors.swimmer, None, quantity= 3, quantity2=None)
+
+def speedrun_level_medium():
+    global action_2, last_collision, current_screen
+    if game_clocks.action1 == 0:
+        for i in range(0, 3):
+            actors.new_log()
+        for i in range(0, 1):
+            actors.new_power_up()
+    game_clocks.action1 = 1
+    index_lists(actors.logs)
+    game_clocks.show_count = True
+    ts = time.time()
+    if game_clocks.show_count and game_clocks.action == 0:
+        game_clocks.countup()
+        game_clocks.action = 1
+        for log in actors.logs:
+            log.y = randint(-800, -300)
+    if game_questions.answer == 'correct':
+        game_clocks.count_max -= 10
+        game_questions.answer = None
+    elif game_questions.answer == 'incorrect':
+        game_clocks.count_max += 10
+        game_questions.answer = None
+    if game_clocks.count >= game_clocks.count_max:
+        current_screen = 'gameover_speed'
+    if actors.not_hit:
+        if actors.number_of_updates_swimmer == 10:
+            actors.actors_image_change(actors.swimmer, actors.swimmer_states)
+            actors.number_of_updates_swimmer = 0
+        else:
+            actors.number_of_updates_swimmer += 1
+    if not actors.not_hit:
+        if actors.hit_updates == 6:
+            actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
+            actors.hit_updates = 0
+        else:
+            actors.hit_updates += 1
+            clock.schedule(actors.stop_swimmer_hit_animation, 3)
+    for log in actors.logs:
+        if log.y < 600 and not actors.powerup_collision:
+            log.y += 2
+        elif log.y < 600 and actors.powerup_collision:
+            log.y += 3
+        else:
+            log.y = randint(-800, -500)
+        if actors.number_of_updates_log == 10:
+            actors.actors_image_change(log, actors.log_states)
+            actors.number_of_updates_log = 0
+        else:
+            actors.number_of_updates_log += 1
+        if (actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
+            game_clocks.count_max += 3
+            last_collision = ts
+            sounds.hit.play()
+            actors.not_hit = False
+    for powerup in actors.powerups:
+        if powerup.y < 600 and not actors.powerup_collision:
+            powerup.y += 2
+        elif powerup.y < 0 and actors.powerup_collision:
+            powerup.y = randint(-800, -500)
+        else:
+            powerup.y = randint(-800, -500)
+        if actors.number_of_updates_powerup == 10:
+            actors.actors_image_change(powerup, actors.powerup_states)
+            actors.number_of_updates_powerup = 0
+        else:
+            actors.number_of_updates_powerup += 1
+        for log in actors.logs:
+            if powerup.colliderect(log):
+                powerup.y += 75
+            if actors.q_block.colliderect(log):
+                log.y += 100
+            if actors.q_block.colliderect(powerup):
+                powerup.y += 75
+        if actors.swimmer.colliderect(powerup):
+            actors.powerup_collision = True
+            game_clocks.count_max -= 5
+            music.stop()
+            music.play("stasis")
+            music.fadeout(5)
+            clock.schedule(actors.stop_powerup, 5)
+            clock.schedule(change_music, 5)
+    actors.moving(actors.swimmer, actors.powerup_collision, quantity=4, quantity2=6)
 
 #Drawing
 
@@ -267,6 +348,8 @@ def draw():
     elif current_screen == 'speedrun_medium':
         actors.set_background(screen)
         actors.swimmer.draw()
+        actors.create_actors(actors.logs)
+        actors.create_actors(actors.powerups)
         screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
     elif current_screen == 'points_medium':
         actors.set_background(screen)
@@ -390,6 +473,7 @@ def update():
         actors.moving_bg()
     elif current_screen == 'speedrun_medium':
         actors.moving_bg()
+        speedrun_level_medium()
     elif current_screen == 'points_medium':
         actors.moving_bg()
     #Question interactions
