@@ -19,6 +19,7 @@ class GameActors:
     swimmer_states_hit = ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2","swimmer_3"]  # swimmer hit animation images
     powerup_states = ["powerup", "powerup_1", "powerup_2"]  # powerup animation images
     coin_states = ["coin", "coin_1", "coin_2"]  # coin animation images
+    shark_states = ["shark", "shark_1", "shark_2", "shark_3", "shark_4", "shark_5", "shark_6", "shark_7", "shark_8", "shark_9", "shark_10", "shark_11", "shark_12", "shark_13"]
     q_block_states = ["question_block", "question_block_1"]
 
 #All animation variables
@@ -29,6 +30,7 @@ class GameActors:
     number_of_updates_powerup = 0
     number_of_updates_coin = 0
     number_of_updates_block = 0
+    number_of_updates_shark = 0
     hit_updates = 0
 
 #Background variables
@@ -55,6 +57,7 @@ class GameActors:
         self.extreme = Actor("extreme", pos=(settings.CENTER_X + 200, 525))
         self.goback = Actor("goback", pos=(50, 580))
         self.q_block = Actor("question_block", pos=(settings.CENTER_X, randint(-2000, -1600)))
+        self.shark = Actor("shark", pos=(randint(190, 625), randint(-800, -400)))
         self.swimmer = Actor("swimmer", pos=(settings.CENTER_X, 550))
         self.not_hit = True
         self.powerup_collision = False

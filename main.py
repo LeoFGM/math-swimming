@@ -1,7 +1,11 @@
 import random
+import threading
 
 import pgzrun
 from random import randint, shuffle, choice, choices
+
+from pygame.time import delay
+
 from actors import GameActors
 from settings import settings
 
@@ -22,12 +26,22 @@ import math
 
 #Music
 
-def change_music():
-    music.play("strength")
-
-musics = ["voltaic-gale", "stasis"]
+musics = ["voltaic-gale", "stasis", "hero", "monster"]
 music.set_volume(0.25)
 music.play("loadscreen")
+
+def change_music_temporarily(new_music, duration, current_music):
+    def play_new_music():
+        music.pause()
+        print(f"Changing music to: {new_music}")
+        music.play(new_music)
+        music.fadeout(5)
+        time.sleep(duration)
+        print("Reverting to initial music")
+        music.stop()
+        music.play(current_music)
+
+    threading.Thread(target=play_new_music).start()
 
 #Mouse interactions
 
@@ -121,11 +135,8 @@ def speedrun_level_easy():
         if actors.swimmer.colliderect(powerup):
             actors.powerup_collision = True
             game_clocks.count_max -= 5
-            music.stop()
-            music.play("stasis")
-            music.fadeout(5)
             clock.schedule(actors.stop_powerup, 5)
-            clock.schedule(change_music, 5)
+            change_music_temporarily("stasis", 5.0, "strength")
     if actors.q_block.y < 600:
         actors.q_block.y += 2
         if actors.number_of_updates_block == 15:
@@ -268,9 +279,9 @@ def speedrun_level_medium():
             clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for log in actors.logs:
         if log.y < 600 and not actors.powerup_collision:
-            log.y += 2
+            log.y += 2.5
         elif log.y < 600 and actors.powerup_collision:
-            log.y += 3
+            log.y += 3.5
         else:
             log.y = randint(-800, -500)
         if actors.number_of_updates_log == 10:
@@ -285,11 +296,9 @@ def speedrun_level_medium():
             actors.not_hit = False
     for powerup in actors.powerups:
         if powerup.y < 600 and not actors.powerup_collision:
-            powerup.y += 2
-        elif powerup.y < 0 and actors.powerup_collision:
-            powerup.y = randint(-800, -500)
+            powerup.y += 2.5
         else:
-            powerup.y = randint(-800, -500)
+            powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
         if actors.number_of_updates_powerup == 10:
             actors.actors_image_change(powerup, actors.powerup_states)
             actors.number_of_updates_powerup = 0
@@ -304,12 +313,21 @@ def speedrun_level_medium():
                 powerup.y += 75
         if actors.swimmer.colliderect(powerup):
             actors.powerup_collision = True
+            powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
             game_clocks.count_max -= 5
-            music.stop()
-            music.play("stasis")
-            music.fadeout(5)
-            clock.schedule(actors.stop_powerup, 5)
-            clock.schedule(change_music, 5)
+            clock.schedule_unique(actors.stop_powerup, 5.0)
+            change_music_temporarily("stasis", 5.0, "monster")
+    if actors.shark.y < 600:
+        actors.shark.y += 2.5
+        if actors.number_of_updates_shark == 5:
+            actors.actors_image_change(actors.shark, actors.shark_states)
+            actors.number_of_updates_shark = 0
+            if actors.shark.image == "shark_13":
+                actors.number_of_updates_shark = -60
+        else:
+            actors.number_of_updates_shark += 1
+    else:
+        actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
     actors.moving(actors.swimmer, actors.powerup_collision, quantity=4, quantity2=6)
 
 #Drawing
@@ -321,7 +339,6 @@ current_screen = 'start'
 #Game state variables
 
 def draw():
-    print(current_screen)
     screen.clear()
     screen.blit("river", (0, 0))
     if current_screen == 'start':
@@ -348,6 +365,7 @@ def draw():
     elif current_screen == 'speedrun_medium':
         actors.set_background(screen)
         actors.swimmer.draw()
+        actors.shark.draw()
         actors.create_actors(actors.logs)
         actors.create_actors(actors.powerups)
         screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
