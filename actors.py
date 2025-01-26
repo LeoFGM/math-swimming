@@ -19,7 +19,7 @@ class GameActors:
     swimmer_states_hit = ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2","swimmer_3"]  # swimmer hit animation images
     powerup_states = ["powerup", "powerup_1", "powerup_2"]  # powerup animation images
     coin_states = ["coin", "coin_1", "coin_2"]  # coin animation images
-    shark_states = ["shark", "shark_1", "shark_2", "shark_3", "shark_4", "shark_5", "shark_6", "shark_7", "shark_8", "shark_9", "shark_10", "shark_11", "shark_12", "shark_13"]
+    shark_states = ["shark", "shark_1", "shark_2", "shark_3", "shark_4", "shark_5", "shark_6", "shark_7", "shark_8", "shark_9", "shark_10", "shark_11", "shark_12", "shark_13", "shark_14"]
     q_block_states = ["question_block", "question_block_1"]
 
 #All animation variables

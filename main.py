@@ -1,6 +1,6 @@
 import random
 import threading
-
+import pygame
 import pgzrun
 from random import randint, shuffle, choice, choices
 
@@ -16,32 +16,54 @@ from questions import *
 import time
 import math
 
-#Clocks
+pygame.init()
 
-
-
-#Variables reset
 
 
 
 #Music
 
-musics = ["voltaic-gale", "stasis", "hero", "monster"]
 music.set_volume(0.25)
 music.play("loadscreen")
 
-def change_music_temporarily(new_music, duration, current_music):
-    def play_new_music():
-        music.pause()
-        print(f"Changing music to: {new_music}")
-        music.play(new_music)
-        music.fadeout(5)
-        time.sleep(duration)
-        print("Reverting to initial music")
-        music.stop()
-        music.play(current_music)
+current_music = None
+current_position = 0
 
-    threading.Thread(target=play_new_music).start()
+MUSIC_FOLDER = "music"
+MUSIC_EXTENSION = ".ogg"
+
+def change_music_temporarily(new_music, duration, initial_music):
+    global current_music, current_position
+    print("function activated")
+    if pygame.mixer.music.get_busy():
+        current_music = initial_music
+        current_position = pygame.mixer.music.get_pos()
+        pygame.mixer.music.pause()
+
+    #Pause current music
+    pygame.mixer.music.pause()
+
+    #Play new music
+    print(f"Playing temporary music: {new_music}")
+    pygame.mixer.music.load(f"{MUSIC_FOLDER}/{new_music}{MUSIC_EXTENSION}")
+    pygame.mixer.music.play()
+    pygame.mixer.music.fadeout(duration * 1000)
+
+    #Unpause initial music
+    def restore_music():
+        global  current_music, current_position
+        print(f"Restoring {initial_music}")
+        pygame.mixer.music.stop()
+        if current_music:
+            pygame.mixer.music.load(f"{MUSIC_FOLDER}/{current_music}{MUSIC_EXTENSION}")
+            pygame.mixer.music.play(start=current_position / 1000)
+
+    def delayed_restore():
+        time.sleep(duration)
+        restore_music()
+
+    threading.Thread(target=delayed_restore).start()
+
 
 #Mouse interactions
 
@@ -54,13 +76,11 @@ def change_music_temporarily(new_music, duration, current_music):
 
 
 
-action_1 = 0
-action_2 = 0
 
 game_clocks = GameClocks()
 
 def speedrun_level_easy():
-    global action_2, last_collision, current_screen
+    global last_collision, current_screen
     if game_clocks.action1 == 0:
         for i in range(0, 3):
             actors.new_log()
@@ -96,13 +116,21 @@ def speedrun_level_easy():
         else:
             actors.hit_updates += 1
             clock.schedule(actors.stop_swimmer_hit_animation, 3)
-    for log in actors.logs:
+    for i, log in enumerate(actors.logs):
         if log.y < 600 and not actors.powerup_collision:
             log.y += 2
         elif log.y < 600 and actors.powerup_collision:
             log.y += 3
         else:
-            log.y = randint(-800, -500)
+            max_attemps = 50
+            attemps = 0
+            while attemps < max_attemps:
+                log.y = randint(-800, -500)
+                if all(abs(log.y - other_log.y) > 200 for j, other_log in enumerate(actors.logs) if j != i):
+                    break
+                attemps += 1
+            if attemps == max_attemps:
+                log.y = -800
         if actors.number_of_updates_log == 10:
             actors.actors_image_change(log, actors.log_states)
             actors.number_of_updates_log = 0
@@ -136,7 +164,7 @@ def speedrun_level_easy():
             actors.powerup_collision = True
             game_clocks.count_max -= 5
             clock.schedule(actors.stop_powerup, 5)
-            change_music_temporarily("stasis", 5.0, "strength")
+            change_music_temporarily("stasis", 5, "strength")
     if actors.q_block.y < 600:
         actors.q_block.y += 2
         if actors.number_of_updates_block == 15:
@@ -153,7 +181,7 @@ def speedrun_level_easy():
     actors.moving(actors.swimmer, actors.powerup_collision, quantity= 3, quantity2= 5)
 
 def points_level_easy():
-    global  action_1, current_screen, last_collision
+    global current_screen, last_collision
     if game_clocks.action1 == 0:
         for i in range(0, 3):
             actors.new_log()
@@ -189,11 +217,19 @@ def points_level_easy():
         else:
             actors.hit_updates += 1
         clock.schedule(actors.stop_swimmer_hit_animation, 3)
-    for log in actors.logs:
+    for i, log in enumerate(actors.logs):
         if log.y < 600:
             log.y += 2
         else:
-            log.y = randint(-800, -500)
+            max_attemps = 50
+            attemps = 0
+            while attemps < max_attemps:
+                log.y = randint(-800, -500)
+                if all(abs(log.y - other_log.y) > 200 for j, other_log in enumerate(actors.logs) if j != i):
+                    break
+                attemps += 1
+            if attemps == max_attemps:
+                log.y = -800
         if actors.number_of_updates_log == 10:
             actors.actors_image_change(log, actors.log_states)
             actors.number_of_updates_log = 0
@@ -241,7 +277,7 @@ def points_level_easy():
     actors.moving(actors.swimmer, None, quantity= 3, quantity2=None)
 
 def speedrun_level_medium():
-    global action_2, last_collision, current_screen
+    global last_collision, current_screen
     if game_clocks.action1 == 0:
         for i in range(0, 3):
             actors.new_log()
@@ -277,18 +313,29 @@ def speedrun_level_medium():
         else:
             actors.hit_updates += 1
             clock.schedule(actors.stop_swimmer_hit_animation, 3)
-    for log in actors.logs:
-        if log.y < 600 and not actors.powerup_collision:
-            log.y += 2.5
-        elif log.y < 600 and actors.powerup_collision:
+    for i, log in enumerate(actors.logs):
+        if log.y < 600 and actors.powerup_collision:
             log.y += 3.5
+        elif log.y < 600:
+            log.y += 2.5
         else:
-            log.y = randint(-800, -500)
+            max_attemps = 50
+            attemps = 0
+            while attemps < max_attemps:
+                log.y = randint(-800, -500)
+                if all(abs(log.y - other_log.y) > 200 for j, other_log in enumerate(actors.logs) if j != i):
+                    break
+                attemps += 1
+            if attemps == max_attemps:
+                log.y = -800
         if actors.number_of_updates_log == 10:
             actors.actors_image_change(log, actors.log_states)
             actors.number_of_updates_log = 0
         else:
             actors.number_of_updates_log += 1
+        if actors.shark.colliderect(log):
+            actors.shark.y += 75
+            actors.shark.image = 'shark_14'
         if (actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
             game_clocks.count_max += 3
             last_collision = ts
@@ -316,13 +363,13 @@ def speedrun_level_medium():
             powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
             game_clocks.count_max -= 5
             clock.schedule_unique(actors.stop_powerup, 5.0)
-            change_music_temporarily("stasis", 5.0, "monster")
+            change_music_temporarily("stasis", 5, "monster")
     if actors.shark.y < 600:
-        actors.shark.y += 2.5
+        actors.shark.y += 3
         if actors.number_of_updates_shark == 5:
             actors.actors_image_change(actors.shark, actors.shark_states)
             actors.number_of_updates_shark = 0
-            if actors.shark.image == "shark_13":
+            if actors.shark.image == "shark_14":
                 actors.number_of_updates_shark = -60
         else:
             actors.number_of_updates_shark += 1
