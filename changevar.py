@@ -1,6 +1,6 @@
 from pgzero import clock
 
-last_collision = 0
+
 
 class GameClocks:
     def __init__(self):
