@@ -2,13 +2,14 @@ import threading
 import pygame
 import time
 
+
 current_music = None
 current_position = 0
 
 MUSIC_FOLDER = "music"
 MUSIC_EXTENSION = ".ogg"
 
-def change_music_temporarily(new_music, duration, initial_music):
+def change_music_temporarily(new_music, duration, initial_music, game_clocks):
     global current_music, current_position
     print("function activated")
     if pygame.mixer.music.get_busy():
@@ -37,5 +38,7 @@ def change_music_temporarily(new_music, duration, initial_music):
     def delayed_restore():
         time.sleep(duration)
         restore_music()
-
+    if game_clocks.count >= game_clocks.count_max:
+        return
     threading.Thread(target=delayed_restore).start()
+

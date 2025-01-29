@@ -60,18 +60,16 @@ def draw():
         screen.draw.text("Score: " + str(game_clocks.score), color="orange red", topleft=(670,20), fontsize=40)
     #Game over screens:
     elif current_screen == 'gameover_speed':
-        actors.set_background(screen)
         screen.draw.text("You completed the level in: " + str(game_clocks.count) + " seconds!", color="black", center=settings.CENTER, fontsize=60)
         actors.goback.draw()
     elif current_screen == 'gameover_points':
-        actors.set_background(screen)
         screen.draw.text("You ended with: " + str(game_clocks.score) + " points!", color="black", center=settings.CENTER, fontsize=60)
         actors.goback.draw()
     #Question screen
     elif current_screen == 'question_time':
         print(f"Question: {game_questions.questions_e[0]}")
         print(f"Type of question: {type(game_questions.questions_e[0])}")
-        actors.set_background(screen)
+
         screen.draw.filled_rect(game_questions.main_box, "sky blue")
         screen.draw.filled_rect(game_questions.timer_box, "sky blue")
         for box in game_questions.answer_boxes:
@@ -105,6 +103,8 @@ def on_mouse_down(pos):
         actors.logs.clear()
         actors.coins.clear()
         actors.powerups.clear()
+        actors.backgrounds.clear()
+        actors.scroll = 0
         current_screen = 'start'
     elif clicked_actor == 'easy' and (current_screen == 'difficulty_speed' or current_screen == 'difficulty_points'):
         shuffle(game_questions.questions_e)
@@ -168,6 +168,7 @@ def update():
                 actors.number_of_updates1 = 0
         else:
             actors.number_of_updates1 += 1
+        actors.scroll = 0
     elif current_screen == 'speedrun_easy':
         current_screen = speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sounds)
         actors.moving_bg()

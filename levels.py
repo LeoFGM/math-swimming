@@ -93,7 +93,7 @@ def speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sou
             actors.powerup_collision = True
             game_clocks.count_max -= 5
             clock.schedule(actors.stop_powerup, 5)
-            change_music_temporarily("stasis", 5, "strength")
+            change_music_temporarily("stasis", 5, "strength", game_clocks)
     if actors.q_block.y < 600:
         actors.q_block.y += 2
         if actors.number_of_updates_block == 15:
@@ -294,7 +294,7 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
             powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
             game_clocks.count_max -= 5
             clock.schedule_unique(actors.stop_powerup, 5.0)
-            change_music_temporarily("stasis", 5, "monster")
+            change_music_temporarily("stasis", 5, "monster", game_clocks)
     if actors.shark.y < 600:
         actors.shark.y += 3
         if actors.number_of_updates_shark == 5:
@@ -305,6 +305,12 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
         else:
             actors.number_of_updates_shark += 1
     else:
+        actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
+    if actors.shark.colliderect(actors.swimmer) and not actors.shark.image == "shark_14":
+        game_clocks.count_max += 3
+        sounds.sharkbite.set_volume(0.5)
+        sounds.sharkbite.play()
+        actors.shark.image = "shark_14"
         actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
     actors.moving(actors.swimmer, actors.powerup_collision, quantity=4, quantity2=6)
     return current_screen
