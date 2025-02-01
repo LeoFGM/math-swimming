@@ -2,11 +2,10 @@ import random
 import pygame
 import pgzrun
 
+import settings
+from actors import GameActors
 from levels import *
-
-from utils import *
 from questions import *
-
 import time
 import musicals
 
@@ -57,6 +56,9 @@ def draw():
     elif current_screen == 'points_medium':
         actors.set_background(screen)
         actors.swimmer.draw()
+        actors.q_block.draw()
+        actors.create_actors(actors.logs)
+        actors.create_actors(actors.coins)
         screen.draw.text("Time: " + str(game_clocks.count_down_max), color="orange red", topleft=(20,20), fontsize=40)
         screen.draw.text("Score: " + str(game_clocks.score), color="orange red", topleft=(670,20), fontsize=40)
     #Game over screens:
@@ -139,7 +141,9 @@ def on_mouse_down(pos):
                 game_questions.question_m = game_questions.questions_m.pop(0)
                 game_questions.questions_m.append(game_questions.question_m)
             elif box.collidepoint(pos) and game_questions.question_screen == 'points_medium':
-                pass
+                current_screen, game_questions.answer = game_questions.update_game_state_speed(index, game_questions.question_m, sounds, 'points_medium')
+                game_questions.question_m = game_questions.questions_m.pop(0)
+                game_questions.questions_m.append(game_questions.question_m)
 
 
 
@@ -183,7 +187,8 @@ def update():
         current_screen = speedrun_level_medium(game_clocks, actors, game_questions, current_screen, sounds)
     elif current_screen == 'points_medium':
         actors.moving_bg()
-    #Question interactions
+        current_screen = points_level_medium(game_clocks, actors, game_questions, current_screen, sounds)
+
 
 
 

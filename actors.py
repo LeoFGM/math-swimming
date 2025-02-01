@@ -1,3 +1,5 @@
+import random
+
 from pgzero.actor import Actor
 
 from pgzero.keyboard import keyboard
@@ -6,29 +8,10 @@ from random import randint
 
 class GameActors:
 
-#All objects images
-    game_name_states = ["title", "title_2", "title_3", "title_4"]  # Main title images
-    gamemode_states = ["selgamemode_1", "selgamemode_2", "selgamemode_3", "selgamemode_4"]  # Select gamemode images
-    title_states_diff = ["selectdiff", "selectdiff_1", "selectdiff_2", "selectdiff_3", "selectdiff_4"]  # Select difficulty images
-    title_states_easy = ["easy", "easy_1", "easy_2", "easy_3", "easy_4"]  # Easy animation images
-    title_states_medium = ["medium", "medium_1", "medium_2", "medium_3", "medium_4"]  # Medium animation images
-    title_states_hard = ["hard", "hard_1", "hard_2", "hard_3", "hard_4"]  # Hard animation images
-    title_states_extreme = ["extreme", "extreme_1", "extreme_2", "extreme_3", "extreme_4"]  # Extreme animation images
-    log_states = ["log", "log_1"]  # log animation images
-    swimmer_states = ["swimmer", "swimmer_1", "swimmer_2", "swimmer_3"]  # swimmer not-hit animation images
-    swimmer_states_hit = ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2","swimmer_3"]  # swimmer hit animation images
-    powerup_states = ["powerup", "powerup_1", "powerup_2"]  # powerup animation images
-    coin_states = ["coin", "coin_1", "coin_2"]  # coin animation images
-    shark_states = ["shark", "shark_1", "shark_2", "shark_3", "shark_4", "shark_5", "shark_6", "shark_7", "shark_8", "shark_9", "shark_10", "shark_11", "shark_12", "shark_13", "shark_14"]
-    q_block_states = ["question_block", "question_block_1"]
-
 #All animation variables
     number_of_updates = 0  # titles
     number_of_updates1 = 0
-    number_of_updates_log = 0  # logs
     number_of_updates_swimmer = 0
-    number_of_updates_powerup = 0
-    number_of_updates_coin = 0
     number_of_updates_block = 0
     number_of_updates_shark = 0
     hit_updates = 0
@@ -38,11 +21,6 @@ class GameActors:
     scroll = 0
     neg = 1
     backgrounds = []
-
-#Object creation variables
-    logs = []
-    powerups = []
-    coins = []
     x = 250
     def __init__(self):
         self.start = Actor("start", pos=(settings.CENTER_X, 550))
@@ -59,27 +37,54 @@ class GameActors:
         self.q_block = Actor("question_block", pos=(settings.CENTER_X, randint(-2000, -1600)))
         self.shark = Actor("shark", pos=(randint(190, 625), randint(-800, -400)))
         self.swimmer = Actor("swimmer", pos=(settings.CENTER_X, 550))
+        self.coins = []
+        self.logs = []
+        self.powerups = []
         self.not_hit = True
         self.powerup_collision = False
+        self.game_name_states = ["title", "title_2", "title_3", "title_4"]  # Main title images
+        self.gamemode_states = ["selgamemode_1", "selgamemode_2", "selgamemode_3", "selgamemode_4"]  # Select gamemode images
+        self.title_states_diff = ["selectdiff", "selectdiff_1", "selectdiff_2", "selectdiff_3",
+                             "selectdiff_4"]  # Select difficulty images
+        self.title_states_easy = ["easy", "easy_1", "easy_2", "easy_3", "easy_4"]  # Easy animation images
+        self.title_states_medium = ["medium", "medium_1", "medium_2", "medium_3", "medium_4"]  # Medium animation images
+        self.title_states_hard = ["hard", "hard_1", "hard_2", "hard_3", "hard_4"]  # Hard animation images
+        self.title_states_extreme = ["extreme", "extreme_1", "extreme_2", "extreme_3",
+                                "extreme_4"]  # Extreme animation images
+        self.log_states = ["log", "log_1"]  # log animation images
+        self.swimmer_states = ["swimmer", "swimmer_1", "swimmer_2", "swimmer_3"]  # swimmer not-hit animation images
+        self.swimmer_states_hit = ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2",
+                              "swimmer_3"]  # swimmer hit animation images
+        self.powerup_states = ["powerup", "powerup_1", "powerup_2"]  # powerup animation images
+        self.coin_states = ["coin", "coin_1", "coin_2"]  # coin animation images
+        self.shark_states = ["shark", "shark_1", "shark_2", "shark_3", "shark_4", "shark_5", "shark_6", "shark_7", "shark_8",
+                        "shark_9", "shark_10", "shark_11", "shark_12", "shark_13", "shark_14"]
+        self.q_block_states = ["question_block", "question_block_1"]
 
     def new_log(self):
-        global logs, x
-        log_new = Actor("log")
-        log_new.pos = self.x, randint(-800, -500)
-        self.logs.append(log_new)
+        log = Actor("log")
+        log.current_frame = 0
+        log.frame_counter = 0
+        log.pos = self.x, randint(-800, -500)
+        self.logs.append(log)
         self.x += 150
+        return log
 
     def new_coin(self):
-        global coins
-        coin_new = Actor("coin")
-        coin_new.pos = randint(175, 625), randint(-800, -300)
-        self.coins.append(coin_new)
+        coin = Actor("coin")
+        coin.current_frame = 0
+        coin.frame_counter = 0
+        coin.pos = randint(175, 625), randint(-800, -300)
+        self.coins.append(coin)
+        return coin
 
     def new_power_up(self):
-        global powerups, logs
-        powerup_new = Actor("powerup")
-        powerup_new.pos = self.logs[randint(0, 2)].x, self.logs[randint(0, 2)].y + 125
-        self.powerups.append(powerup_new)
+        powerup = Actor("powerup")
+        powerup.pos = random.choice([250, 400, 550]), self.logs[randint(0, 2)].y + 125
+        powerup.current_frame = 0
+        powerup.frame_counter = 0
+        self.powerups.append(powerup)
+        return powerup
 
     def create_actors(self, whole):
         for i in whole:
@@ -115,19 +120,29 @@ class GameActors:
         states.append(current)
         actor.image = current
 
-    def actors_animation(self, updates, rate, actor, states):
-        if updates == rate:
-            self.actors_image_change(actor, states)
-            updates = 0
-        else:
-            updates += 1
 
-    def difficulties_animation(self):
-        self.actors_image_change(self.difficulty, self.title_states_diff)
-        self.actors_image_change(self.easy, self.title_states_easy)
-        self.actors_image_change(self.medium, self.title_states_medium)
-        self.actors_image_change(self.hard, self.title_states_hard)
-        self.actors_image_change(self.extreme, self.title_states_extreme)
+    def animate_actor(self, actor, states, update_interval):
+        if not hasattr(actor, 'current_frame'):
+            actor.current_frame = 0
+            actor.frame_counter = 0
+
+        actor.frame_counter += 1
+
+        if actor.frame_counter >= update_interval:
+            actor.image = states[actor.current_frame]
+            actor.current_frame = (actor.current_frame + 1) % len(states)
+            actor.frame_counter = 0
+
+    def update_animations(self):
+        for coin in self.coins:
+            self.animate_actor(coin, self.coin_states, update_interval=15)
+
+        for log in self.logs:
+            self.animate_actor(log, self.log_states, update_interval=10)
+
+        for powerup in self.powerups:
+            self.animate_actor(powerup, self.powerup_states, update_interval=10)
+
 
     def handle_mouse_down(self, pos):
         if self.start.collidepoint(pos):
