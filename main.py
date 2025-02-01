@@ -50,6 +50,7 @@ def draw():
         actors.set_background(screen)
         actors.swimmer.draw()
         actors.shark.draw()
+        actors.q_block.draw()
         actors.create_actors(actors.logs)
         actors.create_actors(actors.powerups)
         screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
@@ -69,15 +70,11 @@ def draw():
     elif current_screen == 'question_time':
         print(f"Question: {game_questions.questions_e[0]}")
         print(f"Type of question: {type(game_questions.questions_e[0])}")
+        if game_questions.question_screen == 'speed_easy' or game_questions.question_screen == 'points_easy':
+            game_questions.draw_questions(screen, time_left=10, question=game_questions.question_e)
+        elif game_questions.question_screen == 'speed_medium' or game_questions.question_screen == 'points_medium':
+            game_questions.draw_questions(screen, time_left=10, question=game_questions.question_m)
 
-        screen.draw.filled_rect(game_questions.main_box, "sky blue")
-        screen.draw.filled_rect(game_questions.timer_box, "sky blue")
-        for box in game_questions.answer_boxes:
-            screen.draw.filled_rect(box, "medium slate blue")
-        screen.draw.textbox(str(game_questions.time_left_e), game_questions.timer_box, color="black")
-        screen.draw.textbox(game_questions.question_e[0], game_questions.main_box, color="black")
-        for index, box in enumerate(game_questions.answer_boxes, start=1):
-            screen.draw.textbox(game_questions.question_e[index], box, color="black")
 
 
 
@@ -128,15 +125,21 @@ def on_mouse_down(pos):
     elif current_screen == "question_time":
         for index, box in enumerate(game_questions.answer_boxes, start=1):
             print(f"Checking box {index} at position {pos}")
-            if box.collidepoint(pos) and game_questions.question_screen == 'points':
-                current_screen, game_questions.answer = game_questions.update_game_state_points(index, sounds)
+            if box.collidepoint(pos) and game_questions.question_screen == 'points_easy':
+                current_screen, game_questions.answer = game_questions.update_game_state_points(index, game_questions.question_e, sounds, 'points_easy')
                 game_questions.question_e = game_questions.questions_e.pop(0)
                 game_questions.questions_e.append(game_questions.question_e)
-            elif box.collidepoint(pos) and game_questions.question_screen == 'speed':
+            elif box.collidepoint(pos) and game_questions.question_screen == 'speed_easy':
                 print(f"Box {index} clicked, updating game state")
-                current_screen, game_questions.answer = game_questions.update_game_state_speed(index, sounds)
+                current_screen, game_questions.answer = game_questions.update_game_state_speed(index, game_questions.question_e, sounds, 'speedrun_easy')
                 game_questions.question_e = game_questions.questions_e.pop(0)
                 game_questions.questions_e.append(game_questions.question_e)
+            elif box.collidepoint(pos) and game_questions.question_screen == 'speed_medium':
+                current_screen, game_questions.answer = game_questions.update_game_state_speed(index, game_questions.question_m, sounds, 'speedrun_medium')
+                game_questions.question_m = game_questions.questions_m.pop(0)
+                game_questions.questions_m.append(game_questions.question_m)
+            elif box.collidepoint(pos) and game_questions.question_screen == 'points_medium':
+                pass
 
 
 

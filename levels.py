@@ -25,11 +25,13 @@ def speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sou
         for log in actors.logs:
             log.y = randint(-800, -300)
     if game_questions.answer == 'correct':
-        game_clocks.count_max -= 10
+        game_clocks.count_max -= 5
         game_questions.answer = None
+        game_questions.question_screen = None
     elif game_questions.answer == 'incorrect':
-        game_clocks.count_max += 10
+        game_clocks.count_max += 5
         game_questions.answer = None
+        game_questions.question_screen = None
     if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
     if actors.not_hit:
@@ -106,7 +108,7 @@ def speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sou
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
-        game_questions.question_screen = 'speed'
+        game_questions.question_screen = 'speed_easy'
     actors.moving(actors.swimmer, actors.powerup_collision, quantity= 3, quantity2= 5)
     return current_screen
 
@@ -129,9 +131,11 @@ def points_level_easy(game_clocks, actors, game_questions, current_screen, sound
     if game_questions.answer == 'correct' and (game_clocks.count_down_max >= 5):
         game_clocks.score += 10
         game_questions.answer = None
+        game_questions.question_screen = None
     elif game_questions.answer == 'incorrect':
         game_clocks.score -= 10
         game_questions.answer = None
+        game_questions.question_screen = None
     if game_clocks.count_down_max == 0:
         current_screen = 'gameover_points'
     if actors.not_hit:
@@ -203,7 +207,7 @@ def points_level_easy(game_clocks, actors, game_questions, current_screen, sound
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
-        game_questions.question_screen = 'points'
+        game_questions.question_screen = 'points_easy'
     actors.moving(actors.swimmer, None, quantity= 3, quantity2=None)
     return current_screen
 
@@ -224,11 +228,13 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
         for log in actors.logs:
             log.y = randint(-800, -300)
     if game_questions.answer == 'correct':
-        game_clocks.count_max -= 10
+        game_clocks.count_max -= 5
         game_questions.answer = None
+        game_questions.question_screen = None
     elif game_questions.answer == 'incorrect':
-        game_clocks.count_max += 10
+        game_clocks.count_max += 5
         game_questions.answer = None
+        game_questions.question_screen = None
     if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
     if actors.not_hit:
@@ -264,7 +270,7 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
             actors.number_of_updates_log = 0
         else:
             actors.number_of_updates_log += 1
-        if actors.shark.colliderect(log):
+        if actors.shark.colliderect(log) or actors.shark.colliderect(actors.q_block):
             actors.shark.y += 75
             actors.shark.image = 'shark_14'
         if (actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
@@ -312,5 +318,18 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
         sounds.sharkbite.play()
         actors.shark.image = "shark_14"
         actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
+    if actors.q_block.y < 600:
+        actors.q_block.y += 2.5
+        if actors.number_of_updates_block == 15:
+            actors.actors_image_change(actors.q_block, actors.q_block_states)
+            actors.number_of_updates_block = 0
+        else:
+            actors.number_of_updates_block += 1
+    else:
+        actors.q_block.y = randint(-2000, -1600)
+    if actors.swimmer.colliderect(actors.q_block):
+        actors.q_block.y = randint(-2000, -1600)
+        current_screen = 'question_time'
+        game_questions.question_screen = 'speed_medium'
     actors.moving(actors.swimmer, actors.powerup_collision, quantity=4, quantity2=6)
     return current_screen
