@@ -1,4 +1,4 @@
-To execute this game yo must have python 3, and install pygame and pygame zero with pip command
+To execute this game you must have python 3, and install pygame and pygame zero with pip command
 
 Math swimming is a game where math and swim are combined. 
 To play math-swimming, you'll have to start, select a gamemode, and a difficulty (Only easy difficulties are done).
