@@ -1,3 +1,5 @@
+To execute this game yo must have python 3, and install pygame and pygame zero with pip command
+
 Math swimming is a game where math and swim are combined. 
 To play math-swimming, you'll have to start, select a gamemode, and a difficulty (Only easy difficulties are done).
 Once done all of the previous steps (using the mouse of course) on your screen will appear a swimmer, this swimmer is controlled by the arrow keys, but in this game, you can only control the swimmer by the x-axis.
