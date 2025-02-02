@@ -1,42 +1,30 @@
 import random
 
 from pgzero.actor import Actor
-
 from pgzero.keyboard import keyboard
 from settings import settings
 from random import randint
 
 class GameActors:
-
-#All animation variables
-    number_of_updates = 0  # titles
-    number_of_updates1 = 0
-    number_of_updates_swimmer = 0
-    number_of_updates_block = 0
-    number_of_updates_shark = 0
-    hit_updates = 0
-
-#Background variables
-
     scroll = 0
     neg = 1
     backgrounds = []
     x = 250
     def __init__(self):
-        self.start = Actor("start", pos=(settings.CENTER_X, 550))
-        self.speedrun = Actor("speedrun", pos=(settings.CENTER_X - 200, 450))
-        self.pointsmania = Actor("pointsmania", pos=(settings.CENTER_X + 200, 450))
-        self.gamename = Actor("title", pos=(settings.CENTER_X, 250))
-        self.gamemode = Actor("selgamemode_1", pos=(settings.CENTER_X, 250))
-        self.difficulty = Actor("selectdiff", pos=(settings.CENTER_X, 175))
-        self.easy = Actor("easy", pos=(settings.CENTER_X - 200, 350))
-        self.medium = Actor("medium", pos=(settings.CENTER_X + 200, 350))
-        self.hard = Actor("hard", pos=(settings.CENTER_X - 200, 525))
-        self.extreme = Actor("extreme", pos=(settings.CENTER_X + 200, 525))
+        self.start = self.new_actor("start", settings.CENTER_X, 550)
+        self.speedrun = self.new_actor("speedrun", settings.CENTER_X - 200, 450)
+        self.pointsmania = self.new_actor("pointsmania", settings.CENTER_X + 200, 450)
+        self.gamename = self.new_actor("title", settings.CENTER_X, 250)
+        self.gamemode = self.new_actor("selgamemode_1", settings.CENTER_X, 250)
+        self.difficulty = self.new_actor("selectdiff", settings.CENTER_X, 175)
+        self.easy = self.new_actor("easy", settings.CENTER_X - 200, 350)
+        self.medium = self.new_actor("medium", settings.CENTER_X + 200, 350)
+        self.hard = self.new_actor("hard", settings.CENTER_X - 200, 525)
+        self.extreme = self.new_actor("extreme", settings.CENTER_X + 200, 525)
         self.goback = Actor("goback", pos=(50, 580))
-        self.q_block = Actor("question_block", pos=(settings.CENTER_X, randint(-2000, -1600)))
-        self.shark = Actor("shark", pos=(randint(190, 625), randint(-800, -400)))
-        self.swimmer = Actor("swimmer", pos=(settings.CENTER_X, 550))
+        self.q_block = self.new_actor("question_block", settings.CENTER_X, randint(-2000, -1600))
+        self.shark = self.new_actor("shark", randint(190, 625), randint(-800, -400))
+        self.swimmer = self.new_actor("swimmer", settings.CENTER_X, 550)
         self.coins = []
         self.logs = []
         self.powerups = []
@@ -44,13 +32,13 @@ class GameActors:
         self.powerup_collision = False
         self.game_name_states = ["title", "title_2", "title_3", "title_4"]  # Main title images
         self.gamemode_states = ["selgamemode_1", "selgamemode_2", "selgamemode_3", "selgamemode_4"]  # Select gamemode images
-        self.title_states_diff = ["selectdiff", "selectdiff_1", "selectdiff_2", "selectdiff_3",
-                             "selectdiff_4"]  # Select difficulty images
-        self.title_states_easy = ["easy", "easy_1", "easy_2", "easy_3", "easy_4"]  # Easy animation images
-        self.title_states_medium = ["medium", "medium_1", "medium_2", "medium_3", "medium_4"]  # Medium animation images
-        self.title_states_hard = ["hard", "hard_1", "hard_2", "hard_3", "hard_4"]  # Hard animation images
-        self.title_states_extreme = ["extreme", "extreme_1", "extreme_2", "extreme_3",
-                                "extreme_4"]  # Extreme animation images
+        self.title_states_diff = ["selectdiff_1", "selectdiff_2", "selectdiff_3",
+                             "selectdiff_4", "selectdiff"]  # Select difficulty images
+        self.title_states_easy = ["easy_1", "easy_2", "easy_3", "easy_4", "easy"]  # Easy animation images
+        self.title_states_medium = ["medium_1", "medium_2", "medium_3", "medium_4", "medium"]  # Medium animation images
+        self.title_states_hard = ["hard_1", "hard_2", "hard_3", "hard_4", "hard"]  # Hard animation images
+        self.title_states_extreme = ["extreme_1", "extreme_2", "extreme_3",
+                                "extreme_4", "extreme"]  # Extreme animation images
         self.log_states = ["log", "log_1"]  # log animation images
         self.swimmer_states = ["swimmer", "swimmer_1", "swimmer_2", "swimmer_3"]  # swimmer not-hit animation images
         self.swimmer_states_hit = ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2",
@@ -61,11 +49,19 @@ class GameActors:
                         "shark_9", "shark_10", "shark_11", "shark_12", "shark_13", "shark_14"]
         self.q_block_states = ["question_block", "question_block_1"]
 
+    def new_actor(self, image_name, x, y):
+        actor = Actor(image_name, pos=(x, y))
+        actor.current_frame = 0
+        actor.frame_counter = 0
+        actor.waiting_time = 0
+        return actor
+
     def new_log(self):
         log = Actor("log")
         log.current_frame = 0
         log.frame_counter = 0
         log.pos = self.x, randint(-800, -500)
+        log.waiting_time = 0
         self.logs.append(log)
         self.x += 150
         return log
@@ -75,6 +71,7 @@ class GameActors:
         coin.current_frame = 0
         coin.frame_counter = 0
         coin.pos = randint(175, 625), randint(-800, -300)
+        coin.waiting_time = 0
         self.coins.append(coin)
         return coin
 
@@ -83,6 +80,7 @@ class GameActors:
         powerup.pos = random.choice([250, 400, 550]), self.logs[randint(0, 2)].y + 125
         powerup.current_frame = 0
         powerup.frame_counter = 0
+        powerup.waiting_time = 0
         self.powerups.append(powerup)
         return powerup
 
@@ -114,34 +112,56 @@ class GameActors:
         self.extreme.draw()
         self.goback.draw()
 
-
-    def actors_image_change(self, actor, states):
-        current = states.pop(0)
-        states.append(current)
-        actor.image = current
-
-
-    def animate_actor(self, actor, states, update_interval):
+    def animate_actor(self, actor, states, update_interval, wait_time=0):
         if not hasattr(actor, 'current_frame'):
             actor.current_frame = 0
             actor.frame_counter = 0
+            actor.waiting_time = 0
+
+        if actor.waiting_time > 0:
+            actor.waiting_time -= 1
+            return
 
         actor.frame_counter += 1
-
         if actor.frame_counter >= update_interval:
             actor.image = states[actor.current_frame]
             actor.current_frame = (actor.current_frame + 1) % len(states)
             actor.frame_counter = 0
+            if actor.current_frame == 0:
+                actor.waiting_time = wait_time
 
-    def update_animations(self):
+
+    def moving_update_animations(self):
         for coin in self.coins:
-            self.animate_actor(coin, self.coin_states, update_interval=15)
+            self.animate_actor(coin, self.coin_states, update_interval=10)
 
         for log in self.logs:
             self.animate_actor(log, self.log_states, update_interval=10)
 
         for powerup in self.powerups:
             self.animate_actor(powerup, self.powerup_states, update_interval=10)
+
+        self.animate_actor(self.q_block, self.q_block_states, update_interval=10)
+        self.animate_actor(self.shark, self.shark_states, update_interval=5, wait_time=60)
+        if not self.not_hit:
+            self.animate_actor(self.swimmer, self.swimmer_states_hit, update_interval=10)
+        else:
+            self.animate_actor(self.swimmer, self.swimmer_states, update_interval=10)
+
+
+    def static_update_animations(self):
+        actors = [
+            (self.gamename, self.game_name_states, 15, 0),
+            (self.gamemode, self.gamemode_states, 15, 0),
+            (self.difficulty, self.title_states_diff, 5, 60),
+            (self.easy, self.title_states_easy, 5, 60),
+            (self.medium, self.title_states_medium, 5, 60),
+            (self.hard, self.title_states_hard, 5, 60),
+            (self.extreme, self.title_states_extreme, 5, 60)
+        ]
+
+        for actor, states, update_interval, wait_time in actors:
+            self.animate_actor(actor, states, update_interval, wait_time)
 
 
     def handle_mouse_down(self, pos):
@@ -190,7 +210,7 @@ class GameActors:
 
 
 
-#All animation images
+
 
 
 

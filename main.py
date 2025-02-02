@@ -2,7 +2,7 @@ import random
 import pygame
 import pgzrun
 
-import settings
+from settings import settings
 from actors import GameActors
 from levels import *
 from questions import *
@@ -92,6 +92,8 @@ def on_mouse_down(pos):
     elif clicked_actor == 'pointsmania' and current_screen == "gamemode":
         sounds.select.play()
         current_screen = 'difficulty_points'
+        shuffle(game_questions.questions_e)
+        shuffle(game_questions.questions_m)
     elif clicked_actor == 'goback':
         sounds.goback.play()
         if current_screen == 'gameover_speed' or current_screen == 'gameover_points':
@@ -106,7 +108,6 @@ def on_mouse_down(pos):
         actors.scroll = 0
         current_screen = 'start'
     elif clicked_actor == 'easy' and (current_screen == 'difficulty_speed' or current_screen == 'difficulty_points'):
-        shuffle(game_questions.questions_e)
         if current_screen == 'difficulty_speed':
             sounds.select.play()
             music.play("strength")
@@ -150,31 +151,8 @@ def on_mouse_down(pos):
 
 def update():
     global current_screen
-    if current_screen == 'start':
-        if actors.number_of_updates == 15:
-            actors.actors_image_change(actors.gamename, actors.game_name_states)
-            actors.number_of_updates = 0
-        else:
-            actors.number_of_updates += 1
-    elif current_screen == 'gamemode':
-        if actors.number_of_updates == 15:
-            actors.actors_image_change(actors.gamemode, actors.gamemode_states)
-            actors.number_of_updates = 0
-        else:
-            actors.number_of_updates += 1
-    elif (current_screen == 'difficulty_speed') or (current_screen == 'difficulty_points'):
-        if actors.number_of_updates1 == 3:
-            actors.actors_image_change(actors.difficulty, actors.title_states_diff)
-            actors.actors_image_change(actors.easy, actors.title_states_easy)
-            actors.actors_image_change(actors.medium, actors.title_states_medium)
-            actors.actors_image_change(actors.hard, actors.title_states_hard)
-            actors.actors_image_change(actors.extreme, actors.title_states_extreme)
-            if actors.easy.image == 'easy':
-                actors.number_of_updates1 = -60
-            else:
-                actors.number_of_updates1 = 0
-        else:
-            actors.number_of_updates1 += 1
+    if current_screen == 'difficulty_speed' or current_screen == 'difficulty_points' or current_screen == 'start' or current_screen == 'gamemode':
+        actors.static_update_animations()
         actors.scroll = 0
     elif current_screen == 'speedrun_easy':
         current_screen = speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sounds)

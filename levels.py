@@ -32,19 +32,8 @@ def speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sou
         game_questions.question_screen = None
     if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
-    if actors.not_hit:
-        if actors.number_of_updates_swimmer == 10:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states)
-            actors.number_of_updates_swimmer = 0
-        else:
-            actors.number_of_updates_swimmer += 1
     if not actors.not_hit:
-        if actors.hit_updates == 6:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
-            actors.hit_updates = 0
-        else:
-            actors.hit_updates += 1
-            clock.schedule(actors.stop_swimmer_hit_animation, 3)
+        clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for i, log in enumerate(actors.logs):
         if log.y < 600 and not actors.powerup_collision:
             log.y += 2
@@ -86,18 +75,11 @@ def speedrun_level_easy(game_clocks, actors, game_questions, current_screen, sou
             change_music_temporarily("stasis", 5, "strength", game_clocks)
     if actors.q_block.y < 600:
         actors.q_block.y += 2
-        if actors.number_of_updates_block == 15:
-            actors.actors_image_change(actors.q_block, actors.q_block_states)
-            actors.number_of_updates_block = 0
-        else:
-            actors.number_of_updates_block += 1
-    else:
-        actors.q_block.y = randint(-2000, -1600)
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
         game_questions.question_screen = 'speed_easy'
-    actors.update_animations()
+    actors.moving_update_animations()
     actors.moving(actors.swimmer, actors.powerup_collision, quantity= 3, quantity2= 5)
     return current_screen
 
@@ -126,18 +108,7 @@ def points_level_easy(game_clocks, actors, game_questions, current_screen, sound
         game_questions.question_screen = None
     if game_clocks.count_down_max == 0:
         current_screen = 'gameover_points'
-    if actors.not_hit:
-        if actors.number_of_updates_swimmer == 10:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states)
-            actors.number_of_updates_swimmer = 0
-        else:
-            actors.number_of_updates_swimmer += 1
     if not actors.not_hit:
-        if actors.hit_updates == 6:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
-            actors.hit_updates = 0
-        else:
-            actors.hit_updates += 1
         clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for i, log in enumerate(actors.logs):
         if log.y < 600:
@@ -175,18 +146,13 @@ def points_level_easy(game_clocks, actors, game_questions, current_screen, sound
             coin.pos = randint(175, 625), randint(-800, -200)
     if actors.q_block.y < 600:
         actors.q_block.y += 2
-        if actors.number_of_updates_block == 15:
-            actors.actors_image_change(actors.q_block, actors.q_block_states)
-            actors.number_of_updates_block = 0
-        else:
-            actors.number_of_updates_block += 1
     else:
         actors.q_block.y = randint(-2000, -1600)
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
         game_questions.question_screen = 'points_easy'
-    actors.update_animations()
+    actors.moving_update_animations()
     actors.moving(actors.swimmer, None, quantity= 3, quantity2=None)
     return current_screen
 
@@ -215,19 +181,8 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
         game_questions.question_screen = None
     if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
-    if actors.not_hit:
-        if actors.number_of_updates_swimmer == 10:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states)
-            actors.number_of_updates_swimmer = 0
-        else:
-            actors.number_of_updates_swimmer += 1
     if not actors.not_hit:
-        if actors.hit_updates == 6:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
-            actors.hit_updates = 0
-        else:
-            actors.hit_updates += 1
-            clock.schedule(actors.stop_swimmer_hit_animation, 3)
+        clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for i, log in enumerate(actors.logs):
         if log.y < 600 and actors.powerup_collision:
             log.y += 3.5
@@ -271,13 +226,6 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
             change_music_temporarily("stasis", 5, "monster", game_clocks)
     if actors.shark.y < 600:
         actors.shark.y += 3
-        if actors.number_of_updates_shark == 5:
-            actors.actors_image_change(actors.shark, actors.shark_states)
-            actors.number_of_updates_shark = 0
-            if actors.shark.image == "shark_14":
-                actors.number_of_updates_shark = -60
-        else:
-            actors.number_of_updates_shark += 1
     else:
         actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
     if actors.shark.colliderect(actors.swimmer) and not actors.shark.image == "shark_14":
@@ -288,18 +236,13 @@ def speedrun_level_medium(game_clocks, actors, game_questions, current_screen, s
         actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
     if actors.q_block.y < 600:
         actors.q_block.y += 2.5
-        if actors.number_of_updates_block == 15:
-            actors.actors_image_change(actors.q_block, actors.q_block_states)
-            actors.number_of_updates_block = 0
-        else:
-            actors.number_of_updates_block += 1
     else:
         actors.q_block.y = randint(-2000, -1600)
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
         game_questions.question_screen = 'speed_medium'
-    actors.update_animations()
+    actors.moving_update_animations()
     actors.moving(actors.swimmer, actors.powerup_collision, quantity=4, quantity2=6)
     return current_screen
 
@@ -328,18 +271,7 @@ def points_level_medium(game_clocks, actors, game_questions, current_screen, sou
         game_questions.question_screen = None
     if game_clocks.count_down_max == 0:
         current_screen = 'gameover_points'
-    if actors.not_hit:
-        if actors.number_of_updates_swimmer == 10:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states)
-            actors.number_of_updates_swimmer = 0
-        else:
-            actors.number_of_updates_swimmer += 1
     if not actors.not_hit:
-        if actors.hit_updates == 6:
-            actors.actors_image_change(actors.swimmer, actors.swimmer_states_hit)
-            actors.hit_updates = 0
-        else:
-            actors.hit_updates += 1
         clock.schedule(actors.stop_swimmer_hit_animation, 3)
     for i, log in enumerate(actors.logs):
         if log.y < 600:
@@ -377,17 +309,12 @@ def points_level_medium(game_clocks, actors, game_questions, current_screen, sou
             coin.pos = randint(175, 625), randint(-800, -200)
     if actors.q_block.y < 600:
         actors.q_block.y += 2.5
-        if actors.number_of_updates_block == 15:
-            actors.actors_image_change(actors.q_block, actors.q_block_states)
-            actors.number_of_updates_block = 0
-        else:
-            actors.number_of_updates_block += 1
     else:
         actors.q_block.y = randint(-2000, -1600)
     if actors.swimmer.colliderect(actors.q_block):
         actors.q_block.y = randint(-2000, -1600)
         current_screen = 'question_time'
         game_questions.question_screen = 'points_medium'
-    actors.update_animations()
+    actors.moving_update_animations()
     actors.moving(actors.swimmer, None, quantity= 4, quantity2=None)
     return current_screen
