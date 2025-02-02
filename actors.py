@@ -1,9 +1,11 @@
 import random
+from random import randint
 
 from pgzero.actor import Actor
 from pgzero.keyboard import keyboard
+
 from settings import settings
-from random import randint
+
 
 class GameActors:
     scroll = 0
@@ -84,33 +86,20 @@ class GameActors:
         self.powerups.append(powerup)
         return powerup
 
-    def create_actors(self, whole):
-        for i in whole:
-            i.draw()
-
     def stop_swimmer_hit_animation(self):
         self.not_hit = True
 
     def stop_powerup(self):
         self.powerup_collision = False
 
-    def draw_start_screen(self):
-        self.start.draw()
-        self.gamename.draw()
+    def create_and_draw_actors(self, *actor_groups):
+        for group in actor_groups:
+            for actor in group:
+                actor.draw()
 
-    def draw_gamemode_screen(self):
-        self.speedrun.draw()
-        self.pointsmania.draw()
-        self.gamemode.draw()
-        self.goback.draw()
-
-    def draw_difficulty_screen(self):
-        self.difficulty.draw()
-        self.easy.draw()
-        self.medium.draw()
-        self.hard.draw()
-        self.extreme.draw()
-        self.goback.draw()
+    def draw_actors(self, *actors):
+        for actor in actors:
+            actor.draw()
 
     def animate_actor(self, actor, states, update_interval, wait_time=0):
         if not hasattr(actor, 'current_frame'):
@@ -141,8 +130,9 @@ class GameActors:
         for powerup in self.powerups:
             self.animate_actor(powerup, self.powerup_states, update_interval=10)
 
-        self.animate_actor(self.q_block, self.q_block_states, update_interval=10)
+        self.animate_actor(self.q_block, self.q_block_states, update_interval=15)
         self.animate_actor(self.shark, self.shark_states, update_interval=5, wait_time=60)
+
         if not self.not_hit:
             self.animate_actor(self.swimmer, self.swimmer_states_hit, update_interval=10)
         else:

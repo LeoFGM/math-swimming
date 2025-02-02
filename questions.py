@@ -1,6 +1,5 @@
+from random import shuffle
 from pgzero.rect import Rect
-from random import randint, shuffle
-from changevar import GameClocks
 
 
 class GameQuestions:

@@ -1,13 +1,11 @@
-import random
-import pygame
 import pgzrun
 
-from settings import settings
 from actors import GameActors
+from changevar import GameClocks
 from levels import *
 from questions import *
-import time
-import musicals
+from screens import MenuScreens, GameScreens, GameOverScreens, QuestionScreens
+from settings import settings
 
 pygame.init()
 
@@ -24,58 +22,21 @@ current_screen = 'start'
 def draw():
     screen.clear()
     screen.blit("river", (0, 0))
-    if current_screen == 'start':
-        actors.draw_start_screen()
-    elif current_screen == 'gamemode':
-        actors.draw_gamemode_screen()
-    elif current_screen == 'difficulty_speed' or current_screen == 'difficulty_points':
-        actors.draw_difficulty_screen()
-    elif current_screen == 'speedrun_easy':
-        actors.set_background(screen)
-        actors.swimmer.draw()
-        actors.q_block.draw()
-        screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
-        actors.create_actors(actors.logs)
-        actors.create_actors(actors.powerups)
-    elif current_screen == 'points_easy':
-        actors.set_background(screen)
-        actors.swimmer.draw()
-        actors.q_block.draw()
-        screen.draw.text("Time: " + str(game_clocks.count_down_max), color="orange red", topleft=(20,20), fontsize=40)
-        screen.draw.text("Score: " + str(game_clocks.score), color="orange red", topleft=(670,20), fontsize=40)
-        actors.create_actors(actors.logs)
-        actors.create_actors(actors.coins)
-    elif current_screen == 'speedrun_medium':
-        actors.set_background(screen)
-        actors.swimmer.draw()
-        actors.shark.draw()
-        actors.q_block.draw()
-        actors.create_actors(actors.logs)
-        actors.create_actors(actors.powerups)
-        screen.draw.text("Time: " + str(game_clocks.count), color="orange red", topleft=(20,20), fontsize=40)
-    elif current_screen == 'points_medium':
-        actors.set_background(screen)
-        actors.swimmer.draw()
-        actors.q_block.draw()
-        actors.create_actors(actors.logs)
-        actors.create_actors(actors.coins)
-        screen.draw.text("Time: " + str(game_clocks.count_down_max), color="orange red", topleft=(20,20), fontsize=40)
-        screen.draw.text("Score: " + str(game_clocks.score), color="orange red", topleft=(670,20), fontsize=40)
-    #Game over screens:
-    elif current_screen == 'gameover_speed':
-        screen.draw.text("You completed the level in: " + str(game_clocks.count) + " seconds!", color="black", center=settings.CENTER, fontsize=60)
-        actors.goback.draw()
-    elif current_screen == 'gameover_points':
-        screen.draw.text("You ended with: " + str(game_clocks.score) + " points!", color="black", center=settings.CENTER, fontsize=60)
-        actors.goback.draw()
-    #Question screen
-    elif current_screen == 'question_time':
-        print(f"Question: {game_questions.questions_e[0]}")
-        print(f"Type of question: {type(game_questions.questions_e[0])}")
-        if game_questions.question_screen == 'speed_easy' or game_questions.question_screen == 'points_easy':
-            game_questions.draw_questions(screen, time_left=10, question=game_questions.question_e)
-        elif game_questions.question_screen == 'speed_medium' or game_questions.question_screen == 'points_medium':
-            game_questions.draw_questions(screen, time_left=10, question=game_questions.question_m)
+    screen_actions = {
+        'start': lambda : MenuScreens.draw_start_screen(None, actors),
+        'gamemode': lambda : MenuScreens.draw_gamemode_screen(None, actors),
+        'difficulty_speed': lambda : MenuScreens.draw_difficulty_screen(None, actors),
+        'difficulty_points': lambda : MenuScreens.draw_difficulty_screen(None, actors),
+        'speedrun_easy': lambda : GameScreens.draw_speedrun_easy_screen(None, screen, game_clocks, actors),
+        'points_easy': lambda : GameScreens.draw_points_easy_screen(None, screen, game_clocks, actors),
+        'speedrun_medium': lambda : GameScreens.draw_speedrun_medium_screen(None, screen, game_clocks, actors),
+        'points_medium': lambda : GameScreens.draw_points_medium_screen(None, screen, game_clocks, actors),
+        'gameover_speed': lambda : GameOverScreens.draw_gameover_speed_screen(None, screen, settings, game_clocks, actors),
+        'gameover_points': lambda : GameOverScreens.draw_gameover_points_screen(None, screen, settings, game_clocks, actors),
+        'question_time': lambda : QuestionScreens.draw_question_screen(None, screen, game_questions)
+    }
+    if current_screen in screen_actions:
+        screen_actions[current_screen]()
 
 
 
@@ -147,8 +108,6 @@ def on_mouse_down(pos):
                 game_questions.questions_m.append(game_questions.question_m)
 
 
-
-
 def update():
     global current_screen
     if current_screen == 'difficulty_speed' or current_screen == 'difficulty_points' or current_screen == 'start' or current_screen == 'gamemode':
@@ -166,13 +125,6 @@ def update():
     elif current_screen == 'points_medium':
         actors.moving_bg()
         current_screen = points_level_medium(game_clocks, actors, game_questions, current_screen, sounds)
-
-
-
-
-
-
-
 
 
 pgzrun.go()

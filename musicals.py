@@ -1,7 +1,7 @@
 import threading
-import pygame
 import time
 
+import pygame
 
 current_music = None
 current_position = 0
