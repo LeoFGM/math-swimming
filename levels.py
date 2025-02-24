@@ -6,13 +6,12 @@ from pgzero import clock
 from musicals import *
 
 
-last_collision = 0
+
 
 def speedrun_level_easy(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds):
-    global last_collision
     if game_clocks.action1 == 0:
         for i in range(0, 3): game_actors.new_log()
-        for i in range(0, 1): game_actors.new_power_up()
+        for i in range(0, 1): game_actors.new_power_up(image='speed_powerup')
     game_clocks.action1 = 1
     game_clocks.show_count = True
     ts = time.time()
@@ -22,14 +21,7 @@ def speedrun_level_easy(game_clocks, game_actors, actor_movement, actor_animatio
         enable_music_restore()
         for log in game_actors.logs: log.y = randint(-800, -300)
         game_actors.q_block.y = randint(-2000, -1600)
-    if game_questions.answer == 'correct':
-        game_clocks.count_max -= 5
-        game_questions.answer = None
-        game_questions.question_screen = None
-    elif game_questions.answer == 'incorrect':
-        game_clocks.count_max += 5
-        game_questions.answer = None
-        game_questions.question_screen = None
+    game_questions.analyze_answer_points(game_clocks)
     if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
         disable_music_restore()
@@ -49,34 +41,21 @@ def speedrun_level_easy(game_clocks, game_actors, actor_movement, actor_animatio
                 attemps += 1
             if attemps == max_attemps:
                 log.y = -800
-        if (game_actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
-            game_clocks.count_max += 3
-            last_collision = ts
-            sounds.hit.play()
-            actor_animation.not_hit = False
+        actor_movement.log_collision(actor_animation, game_actors, game_clocks, log, sounds, ts)
     for powerup in game_actors.powerups:
         actor_movement.actors_pos_x_fixated(powerup, 2, game_actors.powerup_collision, 3, first=-2000, last=-1600)
-        for log in game_actors.logs:
-            if powerup.colliderect(log): powerup.y += 75
-            if game_actors.q_block.colliderect(log): log.y += 100
-            if game_actors.q_block.colliderect(powerup): powerup.y += 75
-        if game_actors.swimmer.colliderect(powerup):
-            game_actors.powerup_collision = True
-            game_clocks.count_max -= 5
-            clock.schedule(game_actors.stop_powerup, 5)
-            powerup.pos = random.choice([250, 400, 550]), randint(-2000, -1600)
-            change_music_temporarily("stasis", 5, "strength")
-    if game_actors.q_block.y < 600: game_actors.q_block.y += 2
-    if game_actors.swimmer.colliderect(game_actors.q_block):
-        game_actors.q_block.y = randint(-2000, -1600)
-        current_screen = 'question_time'
-        game_questions.question_screen = 'speed_easy'
+        actor_movement.speed_powerup_collision(game_actors, game_clocks, powerup, "stasis", 5, "strength", clock)
+    actor_movement.actors_pos_x_fixated(game_actors.q_block, 2, game_actors.powerup_collision, 3, first=-2000, last=-1600)
+    current_screen = actor_movement.q_block_collision(current_screen, game_actors, game_questions, q_screen='speed_easy')
+    actor_movement.handle_all_collisions(excluded_actor=game_actors.swimmer)
     actor_animation.moving_update_animations()
     actor_movement.moving(game_actors.swimmer, game_actors.powerup_collision, quantity= 3, quantity2= 5)
     return current_screen
 
+
+
+
 def points_level_easy(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds):
-    global last_collision
     if game_clocks.action1 == 0:
         for i in range(0, 3): game_actors.new_log()
         for i in range(0, 20): game_actors.new_coin()
@@ -88,14 +67,7 @@ def points_level_easy(game_clocks, game_actors, actor_movement, actor_animation,
         game_clocks.action = 1
         for log in game_actors.logs: log.y = randint(-800, -300)
         game_actors.q_block.y = randint(-2000, -1600)
-    if game_questions.answer == 'correct' and (game_clocks.count_down_max >= 5):
-        game_clocks.score += 10
-        game_questions.answer = None
-        game_questions.question_screen = None
-    elif game_questions.answer == 'incorrect':
-        game_clocks.score -= 10
-        game_questions.answer = None
-        game_questions.question_screen = None
+    game_questions.analyze_answer_points(game_clocks)
     if game_clocks.count_down_max == 0: current_screen = 'gameover_points'
     if not actor_animation.not_hit: clock.schedule(actor_animation.stop_swimmer_hit_animation, 3)
     for i, log in enumerate(game_actors.logs):
@@ -111,35 +83,24 @@ def points_level_easy(game_clocks, game_actors, actor_movement, actor_animation,
                 attemps += 1
             if attemps == max_attemps:
                 log.y = -800
-        if (game_actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
-            game_clocks.score -= 3
-            last_collision = ts
-            sounds.hit.play()
-            actor_animation.not_hit = False
+        actor_movement.log_collision(actor_animation, game_actors, game_clocks, log, sounds, ts)
     for coin in game_actors.coins:
         actor_movement.actors_random_pos(coin, 2, None, 3, first=-800, last=-100)
-        for log in game_actors.logs:
-            if coin.colliderect(log): coin.y += 30
-            if game_actors.q_block.colliderect(log) and game_actors.q_block.y < 0: log.y += 100
-            if game_actors.q_block.colliderect(coin) and game_actors.q_block.y < 0: coin.y += 75
         if game_actors.swimmer.colliderect(coin):
             game_clocks.score += 1
             sounds.coin.play()
             coin.pos = randint(175, 625), randint(-800, -200)
     actor_movement.actors_pos_x_fixated(game_actors.q_block, 2, None, 3, first= -2000, last= -1600)
-    if game_actors.swimmer.colliderect(game_actors.q_block):
-        game_actors.q_block.y = randint(-2000, -1600)
-        current_screen = 'question_time'
-        game_questions.question_screen = 'points_easy'
+    current_screen = actor_movement.q_block_collision(current_screen, game_actors, game_questions, q_screen='points_easy')
+    actor_movement.handle_all_collisions(excluded_actor=game_actors.swimmer)
     actor_animation.moving_update_animations()
     actor_movement.moving(game_actors.swimmer, None, quantity= 3, quantity2=None)
     return current_screen
 
 def speedrun_level_medium(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds):
-    global last_collision
     if game_clocks.action1 == 0:
         for i in range(0, 3): game_actors.new_log()
-        for i in range(0, 1): game_actors.new_power_up()
+        for i in range(0, 1): game_actors.new_power_up(image='speed_powerup')
     game_clocks.action1 = 1
     game_clocks.show_count = True
     ts = time.time()
@@ -149,14 +110,7 @@ def speedrun_level_medium(game_clocks, game_actors, actor_movement, actor_animat
         enable_music_restore()
         for log in game_actors.logs: log.y = randint(-800, -300)
         game_actors.q_block.y = randint(-2000, -1600)
-    if game_questions.answer == 'correct':
-        game_clocks.count_max -= 5
-        game_questions.answer = None
-        game_questions.question_screen = None
-    elif game_questions.answer == 'incorrect':
-        game_clocks.count_max += 5
-        game_questions.answer = None
-        game_questions.question_screen = None
+    game_questions.analyze_answer_points(game_clocks)
     if game_clocks.count >= game_clocks.count_max:
         current_screen = 'gameover_speed'
         disable_music_restore()
@@ -176,47 +130,24 @@ def speedrun_level_medium(game_clocks, game_actors, actor_movement, actor_animat
                 attemps += 1
             if attemps == max_attemps:
                 log.y = -800
-        if game_actors.shark.colliderect(log) or game_actors.shark.colliderect(game_actors.q_block):
-            game_actors.shark.y += 75
-            game_actors.shark.image = 'shark_14'
-        if (game_actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
-            game_clocks.count_max += 3
-            last_collision = ts
-            sounds.hit.play()
-            actor_animation.not_hit = False
+        actor_movement.log_collision(actor_animation, game_actors, game_clocks, log, sounds, ts)
     for powerup in game_actors.powerups:
         actor_movement.actors_pos_x_fixated(powerup, 2.5, game_actors.powerup_collision, 3.5, first=-2400, last=-2000)
-        for log in game_actors.logs:
-            if powerup.colliderect(log): powerup.y += 75
-            if game_actors.q_block.colliderect(log): log.y += 100
-            if game_actors.q_block.colliderect(powerup): powerup.y += 75
-        if game_actors.swimmer.colliderect(powerup):
-            game_actors.powerup_collision = True
-            powerup.pos = random.choice([250, 400, 550]), randint(-800, -500)
-            game_clocks.count_max -= 5
-            clock.schedule_unique(game_actors.stop_powerup, 5.0)
-            change_music_temporarily("stasis", 5, "monster")
+        actor_movement.speed_powerup_collision(game_actors, game_clocks, powerup, "stasis", 5, "monster", clock)
     actor_movement.actors_pos_x_fixated(game_actors.shark, 2.5, game_actors.powerup_collision, 3.5, first=-800, last=-600)
-    if game_actors.shark.colliderect(game_actors.swimmer) and not game_actors.shark.image == "shark_14":
-        game_clocks.count_max += 3
-        sounds.sharkbite.set_volume(0.5)
-        sounds.sharkbite.play()
-        game_actors.shark.image = "shark_14"
-        game_actors.shark.pos = random.choice([250, 400, 550]), randint(-800, -500)
+    actor_movement.shark_collision(game_actors, game_clocks, sounds)
     actor_movement.actors_pos_x_fixated(game_actors.q_block, 2.5, game_actors.powerup_collision, 3.5, first= -2000, last= -1600)
-    if game_actors.swimmer.colliderect(game_actors.q_block):
-        game_actors.q_block.y = randint(-2000, -1600)
-        current_screen = 'question_time'
-        game_questions.question_screen = 'speed_medium'
+    current_screen = actor_movement.q_block_collision(current_screen, game_actors, game_questions, q_screen='speed_medium')
+    actor_movement.handle_all_collisions(excluded_actor=game_actors.swimmer)
     actor_animation.moving_update_animations()
     actor_movement.moving(game_actors.swimmer, game_actors.powerup_collision, quantity=4, quantity2=6)
     return current_screen
 
-def points_level_medium(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds):
-    global last_collision
+def points_level_medium(game_clocks, game_actors, comp_actors, actor_movement, actor_animation, game_questions, current_screen, sounds):
     if game_clocks.action1 == 0:
         for i in range(0, 3): game_actors.new_log()
         for i in range(0, 20): game_actors.new_coin()
+        for i in range(0, 1): game_actors.new_power_up(image='score_powerup')
     game_clocks.action1 = 1
     game_clocks.show_count = True
     ts = time.time()
@@ -225,14 +156,7 @@ def points_level_medium(game_clocks, game_actors, actor_movement, actor_animatio
         game_clocks.action = 1
         for log in game_actors.logs: log.y = randint(-800, -300)
         game_actors.q_block.y = randint(-2000, -1600)
-    if game_questions.answer == 'correct' and (game_clocks.count_down_max >= 5):
-        game_clocks.score += 10
-        game_questions.answer = None
-        game_questions.question_screen = None
-    elif game_questions.answer == 'incorrect':
-        game_clocks.score -= 10
-        game_questions.answer = None
-        game_questions.question_screen = None
+    game_questions.analyze_answer_points(game_clocks)
     if game_clocks.count_down_max == 0: current_screen = 'gameover_points'
     if not actor_animation.not_hit: clock.schedule(actor_animation.stop_swimmer_hit_animation, 3)
     for i, log in enumerate(game_actors.logs):
@@ -248,26 +172,42 @@ def points_level_medium(game_clocks, game_actors, actor_movement, actor_animatio
                 attemps += 1
             if attemps == max_attemps:
                 log.y = -800
-        if (game_actors.swimmer.colliderect(log)) and (ts - last_collision >= 3):
-            game_clocks.score -= 3
-            last_collision = ts
-            sounds.hit.play()
-            actor_animation.not_hit = False
+        actor_movement.log_collision(actor_animation, game_actors, game_clocks, log, sounds, ts)
     for i, coin in enumerate(game_actors.coins):
         actor_movement.actors_random_pos(coin, 2.5, None, 3.5, first = -800, last = -100)
-        for log in game_actors.logs:
-            if coin.colliderect(log): coin.y += 30
-            if game_actors.q_block.colliderect(log) and game_actors.q_block.y < 0: log.y += 100
-            if game_actors.q_block.colliderect(coin) and game_actors.q_block.y < 0: coin.y += 75
         if game_actors.swimmer.colliderect(coin):
-            game_clocks.score += 1
+            if game_actors.powerup_collision:
+                game_clocks.score += 2
+            else:
+                game_clocks.score += 1
             sounds.coin.play()
             coin.pos = randint(175, 625), randint(-800, -200)
     actor_movement.actors_pos_x_fixated(game_actors.q_block, 2.5, None, 3.5, first= -2000, last= -1600)
-    if game_actors.swimmer.colliderect(game_actors.q_block):
-        game_actors.q_block.y = randint(-2000, -1600)
-        current_screen = 'question_time'
-        game_questions.question_screen = 'points_medium'
+    if game_actors.bear.waiting_time > 0:
+        if game_actors.bear.waiting_time == 30:
+            sounds.fart.set_volume(0.4)
+            sounds.fart.play()
+        elif game_actors.bear.waiting_time == 10:
+            sounds.water_splash.set_volume(0.2)
+            sounds.water_splash.play()
+    else:
+        actor_movement.actors_pos_x_fixated(game_actors.bear, 1, None, 3.5, first=-1000, last=-800, a=110, b=700, c=700)
+    if 630 > game_actors.poop.y > 0:
+        if "poop" in game_actors.bear.image:
+            game_actors.poop.y += 0.5
+        else:
+            game_actors.poop.y += 2.5
+    else:
+        comp_actors.poop_pos = "not_pooping"
+        game_actors.poop.y = -5000
+    actor_movement.poop_collision(game_actors, game_clocks, sounds)
+    for powerup in game_actors.powerups:
+        actor_movement.actors_pos_x_fixated(powerup, 2.5, None, 3.5, first=-2400, last=-2000)
+        actor_movement.score_powerup_collision(game_actors, game_clocks, powerup, sounds, clock)
+    current_screen = actor_movement.q_block_collision(current_screen, game_actors, game_questions, q_screen='points_medium')
+    actor_movement.handle_all_collisions(excluded_actor=game_actors.swimmer)
     actor_animation.moving_update_animations()
     actor_movement.moving(game_actors.swimmer, None, quantity= 4, quantity2=None)
     return current_screen
+
+

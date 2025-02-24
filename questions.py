@@ -70,6 +70,26 @@ class GameQuestions:
         for index, box in enumerate(self.answer_boxes, start=1):
             screen.draw.textbox(question[index], box, color="black")
 
+    def analyze_answer_points(self, game_clocks):
+        if self.answer == 'correct' and (game_clocks.count_down_max >= 5):
+            game_clocks.score += 10
+            self.answer = None
+            self.question_screen = None
+        elif self.answer == 'incorrect':
+            game_clocks.score -= 10
+            self.answer = None
+            self.question_screen = None
+
+    def analyze_answer_speed(self, game_clocks):
+        if self.answer == 'correct':
+            game_clocks.count_max -= 5
+            self.answer = None
+            self.question_screen = None
+        elif self.answer == 'incorrect':
+            game_clocks.count_max += 5
+            self.answer = None
+            self.question_screen = None
+
     def reset_questions_easy(self):
         self.questions_e = [self.q1_e, self.q2_e, self.q3_e, self.q4_e, self.q5_e, self.q6_e, self.q7_e, self.q8_e, self.q9_e, self.q10_e
         ]
@@ -99,6 +119,9 @@ class GameQuestions:
 
 
 #Hard questions
+
+
+
 
 
 

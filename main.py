@@ -1,6 +1,6 @@
 import pgzrun
 
-from actors import GameActors, ActorMovement, AnimationManager
+from actors import GameActors, ActorMovementInteractions, AnimationManager, CompActors
 from changevar import GameClocks
 from levels import *
 from questions import *
@@ -15,8 +15,9 @@ music.play("loadscreen")
 
 game_clocks = GameClocks()
 game_actors = GameActors()
-actor_movement = ActorMovement()
 actor_animation = AnimationManager(game_actors)
+actor_movement = ActorMovementInteractions(actor_animation)
+comp_actors = CompActors(game_actors)
 game_questions = GameQuestions()
 current_screen = 'start'
 
@@ -34,7 +35,7 @@ def draw():
         'speedrun_easy': lambda : GameScreens.draw_speedrun_easy_screen(None, screen, game_clocks, game_actors, actor_movement),
         'points_easy': lambda : GameScreens.draw_points_easy_screen(None, screen, game_clocks, game_actors, actor_movement),
         'speedrun_medium': lambda : GameScreens.draw_speedrun_medium_screen(None, screen, game_clocks, game_actors, actor_movement),
-        'points_medium': lambda : GameScreens.draw_points_medium_screen(None, screen, game_clocks, game_actors, actor_movement),
+        'points_medium': lambda : GameScreens.draw_points_medium_screen(None, screen, game_clocks, game_actors, actor_movement, comp_actors),
         'gameover_speed': lambda : GameOverScreens.draw_gameover_speed_screen(None, screen, settings, game_clocks, game_actors),
         'gameover_points': lambda : GameOverScreens.draw_gameover_points_screen(None, screen, settings, game_clocks, game_actors),
         'question_time': lambda : QuestionScreens.draw_question_screen(None, screen, game_questions)
@@ -173,7 +174,6 @@ def update():
         current_screen = speedrun_level_medium(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
     elif current_screen == 'points_medium':
         actor_movement.moving_bg()
-        current_screen = points_level_medium(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
-
+        current_screen = points_level_medium(game_clocks, game_actors, comp_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
 
 pgzrun.go()
