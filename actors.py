@@ -7,26 +7,27 @@ from pgzero.keyboard import keyboard
 from musicals import change_music_temporarily
 from settings import settings
 
+HIDDEN_POSITION = (-500, -500)
 
 class GameActors:
     x = 250
     def __init__(self):
-        self.start = self.new_actor("start", settings.CENTER_X, 550)
-        self.speedrun = self.new_actor("speedrun", settings.CENTER_X - 200, 450)
-        self.pointsmania = self.new_actor("pointsmania", settings.CENTER_X + 200, 450)
-        self.gamename = self.new_actor("title", settings.CENTER_X, 250)
-        self.gamemode = self.new_actor("selgamemode_1", settings.CENTER_X, 250)
-        self.difficulty = self.new_actor("selectdiff", settings.CENTER_X, 175)
-        self.easy = self.new_actor("easy", settings.CENTER_X - 200, 350)
-        self.medium = self.new_actor("medium", settings.CENTER_X + 200, 350)
-        self.hard = self.new_actor("hard", settings.CENTER_X - 200, 525)
-        self.extreme = self.new_actor("extreme", settings.CENTER_X + 200, 525)
+        self.start = self.new_actor("start", (settings.CENTER_X, 550))
+        self.speedrun = self.new_actor("speedrun", (settings.CENTER_X - 200, 450))
+        self.pointsmania = self.new_actor("pointsmania", (settings.CENTER_X + 200, 450))
+        self.gamename = self.new_actor("title", (settings.CENTER_X, 250))
+        self.gamemode = self.new_actor("selgamemode_1", (settings.CENTER_X, 250))
+        self.difficulty = self.new_actor("selectdiff", (settings.CENTER_X, 175))
+        self.easy = self.new_actor("easy", (settings.CENTER_X - 200, 350))
+        self.medium = self.new_actor("medium", (settings.CENTER_X + 200, 350))
+        self.hard = self.new_actor("hard", (settings.CENTER_X - 200, 525))
+        self.extreme = self.new_actor("extreme", (settings.CENTER_X + 200, 525))
         self.goback = Actor("goback", pos=(50, 580))
-        self.q_block = self.new_actor("question_block", settings.CENTER_X, randint(-2000, -1600))
-        self.shark = self.new_actor("shark", randint(190, 625), randint(-800, -400))
-        self.swimmer = self.new_actor("swimmer", settings.CENTER_X, 550)
-        self.bear = self.new_actor("bear", random.choice([110, 700]), randint(-1000, -800))
-        self.poop = self.new_actor("poop", random.choice([110, 700]), randint(-1000, -800))
+        self.q_block = self.new_actor("question_block", (settings.CENTER_X, randint(-2000, -1600)), special_x=settings.CENTER_X, first=-2400, last=-2000)
+        self.shark = self.new_actor("shark", (random.choice([250, 400, 550]), randint(-800, -400)), x_locked=True, first=-800, last=-400)
+        self.swimmer = self.new_actor("swimmer", (settings.CENTER_X, 550))
+        self.bear = self.new_actor("bear", (random.choice([110, 700]), randint(-1000, -800)), x_locked=True, x_positions=[110, 700], first=-1000, last=-800)
+        self.poop = self.new_actor("poop", (random.choice([110, 700]), randint(-1000, -800)), first=-1000, last=-800)
         self.coins = []
         self.logs = []
         self.powerups = []
@@ -51,40 +52,28 @@ class GameActors:
             (self.extreme, self.title_states_extreme, 5, 60)
         ]
 
-    def new_actor(self, image_name, x, y):
-        actor = Actor(image_name, pos=(x, y))
+    def new_actor(self, image_name, position=None, actor_list=None, special_x=None, x_locked=None, x_positions=None, first=None, last=None,):
+        actor = Actor(image_name, pos=position)
         actor.current_frame = 0
         actor.frame_counter = 0
         actor.waiting_time = 0
+        actor.use_random_choice = False
+        actor.x_positions = None
+
+        if actor_list is not None:
+            actor_list.append(actor)
+
+        if special_x is not None:
+            actor.x = special_x
+
+        if  x_locked is True:
+            actor.use_random_choice = True
+            actor.x_positions = x_positions
+
+        actor.first = first
+        actor.last = last
+
         return actor
-
-    def new_log(self):
-        log = Actor("log")
-        log.current_frame = 0
-        log.frame_counter = 0
-        log.pos = self.x, randint(-800, -500)
-        log.waiting_time = 0
-        self.logs.append(log)
-        self.x += 150
-        return log
-
-    def new_coin(self):
-        coin = Actor("coin")
-        coin.current_frame = 0
-        coin.frame_counter = 0
-        coin.pos = randint(175, 625), randint(-800, -300)
-        coin.waiting_time = 0
-        self.coins.append(coin)
-        return coin
-
-    def new_power_up(self, image):
-        powerup = Actor(image)
-        powerup.pos = random.choice([250, 400, 550]), self.logs[randint(0, 2)].y + 125
-        powerup.current_frame = 0
-        powerup.frame_counter = 0
-        powerup.waiting_time = 0
-        self.powerups.append(powerup)
-        return powerup
 
     def get_static_actors(self):
         return self.static_actors
@@ -114,7 +103,7 @@ class GameActors:
             "swimmer_states": ["swimmer", "swimmer_1", "swimmer_2", "swimmer_3"],
             "swimmer_states_hit": ["swimmer", "swimmer_hit", "swimmer_1", "swimmer_hit", "swimmer_2", "swimmer_3"],
             "bear_states": ["bear", "bear_1"],
-            "poop_states": ["poop", "poop_1"]
+            "poop_states": ["poop", "poop_1", "poop_2"]
         }
 
     def stop_powerup(self):
@@ -134,17 +123,17 @@ class GameActors:
         self.coins.clear()
         self.powerups.clear()
 
+    def set_actor_position(self, actor, position):
+        actor.pos = position
+
     def hide_level_selection_actors(self):
-        self.start.pos = (-500, -500)
-        self.gamename.pos = (-500, -500)
-        self.gamemode.pos = (-500, -500)
-        self.difficulty.pos = (-500, -500)
-        self.speedrun.pos = (-500, -500)
-        self.pointsmania.pos = (-500, -500)
-        self.easy.pos = (-500, -500)
-        self.medium.pos = (-500, -500)
-        self.hard.pos = (-500, -500)
-        self.extreme.pos = (-500, -500)
+        level_selection_actors = [self.start, self.gamename, self.gamemode, self.difficulty,
+                                  self.pointsmania, self.speedrun, self.easy, self.medium,
+                                  self.hard, self.extreme
+        ]
+        for actor in level_selection_actors:
+            self.set_actor_position(actor, HIDDEN_POSITION)
+
 
 
     def show_level_selection_actors(self):
@@ -181,6 +170,10 @@ class GameActors:
 
 
 class ActorMovementInteractions:
+    SCROLL_INCREMENT = 0.0003
+    MAX_SCROLL = 600
+    DEFAULT_POSITIONS = [250, 400, 550]
+
     def __init__(self, actor_animation):
         self.actor_animation = actor_animation
         self.scroll = 0
@@ -196,36 +189,70 @@ class ActorMovementInteractions:
             self.neg = -1
 
     def moving_bg(self):
-        for back in self.backgrounds:
-            self.scroll += 0.0003
-        if abs(self.scroll) > 600:
+        for _ in self.backgrounds:
+            self.scroll += self.SCROLL_INCREMENT
+        if abs(self.scroll) > self.MAX_SCROLL:
             self.scroll = 0
 
-    def moving(self, actor, objects, quantity, quantity2):
+    def move_swimmer(self, actor, objects, normal_speed, fast_speed):
         if keyboard.left and (actor.x > 190):
-            actor.x -= quantity
+            actor.x -= fast_speed if objects else normal_speed
         if keyboard.right and (actor.x < 625):
-            actor.x += quantity
-        if keyboard.left and (actor.x > 190) and objects:
-            actor.x -= quantity2
-        if keyboard.right and (actor.x < 625) and objects:
-            actor.x += quantity2
+            actor.x += fast_speed if objects else normal_speed
 
-    def actors_pos_x_fixated(self, actor, quantity, special_effect, quantity2, first, last, a=250, b=400, c=550):
-        if actor.y < 630 and not special_effect:
-            actor.y += quantity
-        elif actor.y < 630 and special_effect:
-            actor.y += quantity2
-        else:
-            actor.pos = random.choice([a, b, c]), randint(first, last)
 
-    def actors_random_pos(self, actor, quantity, special_effect, quantity2, first, last):
-        if actor.y < 630 and not special_effect:
-            actor.y += quantity
-        elif actor.y < 630 and special_effect:
-            actor.y += quantity2
-        else:
-            actor.pos = randint(175, 625), randint(first, last)
+    def reposition_actors(self, game_actors, *actors, quantity, special_effect=None, alt_quantity=None):
+         flattened_actors = []
+         for actor_group in actors:
+             if isinstance(actor_group, list):
+                 flattened_actors.extend(actor_group)
+             else:
+                 flattened_actors.append(actor_group)
+
+         for i, actor in enumerate(flattened_actors):
+            if not hasattr(actor, "special_x") or actor.special_x is None:
+                 actor.special_x = None
+
+            actor.x_positions = actor.x_positions or self.DEFAULT_POSITIONS
+            actor.random_x_range = (190, 625)
+
+            if actor.y < 630:
+                actor.y += alt_quantity if special_effect else quantity
+            else:
+                if 'log' in actor.image:
+                    new_y, new_x = self.logs_reposition(game_actors, i, actor)
+                elif actor.use_random_choice is True:
+                    new_x = random.choice(actor.x_positions)
+                elif actor.special_x is not None:
+                    new_x = actor.special_x
+                else:
+                    new_x = randint(*actor.random_x_range)
+                new_y = randint(actor.first, actor.last)
+                actor.pos = new_x, new_y
+
+    def logs_reposition(self, game_actors, i, log):
+        max_attemps = 50
+        attemps = 0
+        while attemps < max_attemps:
+            log.y = randint(-800, -500)
+            if all(abs(log.y - other_log.y) > 200 for j, other_log in enumerate(game_actors.logs) if j != i):
+                break
+            attemps += 1
+        if attemps == max_attemps:
+            log.y = -800
+            log.x = log.x
+        return log.y, log.x
+
+    def reset_actors_position(self, *actors):
+        flattened_actors = []
+        for actor_group in actors:
+            if isinstance(actor_group, list):
+                flattened_actors.extend(actor_group)
+            else:
+                flattened_actors.append(actor_group)
+
+        for actor in flattened_actors:
+            actor.y = randint(actor.first, actor.last)
 
     def handle_all_collisions(self, excluded_actor):
         def process_actors():
@@ -264,31 +291,44 @@ class ActorMovementInteractions:
             game_questions.question_screen = q_screen
         return current_screen
 
-    def log_collision(self, actor_animation, game_actors, game_clocks, log, sounds, ts):
-        if (game_actors.swimmer.colliderect(log)) and (ts - self.last_collision >= 3):
-            game_clocks.count_max += 3
-            game_clocks.score -= 3
-            self.last_collision = ts
-            sounds.hit.play()
-            actor_animation.not_hit = False
+    def log_collision(self, actor_animation, game_actors, game_clocks, sounds, ts):
+        for log in game_actors.logs:
+            if (game_actors.swimmer.colliderect(log)) and (ts - self.last_collision >= 3):
+                game_clocks.count_max += 3
+                game_clocks.score -= 3
+                self.last_collision = ts
+                sounds.hit.play()
+                actor_animation.not_hit = False
 
-    def speed_powerup_collision(self, game_actors, game_clocks, powerup, new_music, duration, initial_music, clock):
-        if game_actors.swimmer.colliderect(powerup):
-            game_actors.powerup_collision = True
-            game_clocks.count_max -= 5
-            clock.schedule(game_actors.stop_powerup, 5)
-            game_clocks.start_timer()
-            powerup.pos = random.choice([250, 400, 550]), randint(-2000, -1600)
-            change_music_temporarily(new_music, duration, initial_music)
+    def speed_powerup_collision(self, game_actors, game_clocks, new_music, duration, initial_music, clock):
+        for powerup in game_actors.powerups:
+            if game_actors.swimmer.colliderect(powerup) and 'speed' in powerup.image:
+                game_actors.powerup_collision = True
+                game_clocks.count_max -= 5
+                clock.schedule(game_actors.stop_powerup, 5)
+                game_clocks.start_timer()
+                powerup.pos = random.choice([250, 400, 550]), randint(-2000, -1600)
+                change_music_temporarily(new_music, duration, initial_music)
 
-    def score_powerup_collision(self, game_actors, game_clocks, powerup, sounds, clock):
-        if game_actors.swimmer.colliderect(powerup):
-            sounds.score_powerup.set_volume(0.5)
-            sounds.score_powerup.play()
-            game_actors.powerup_collision = True
-            powerup.pos = random.choice([250, 400, 550]), randint(-2000, -1600)
-            clock.schedule_unique(game_actors.stop_powerup, 5.0)
-            game_clocks.start_timer()
+    def score_powerup_collision(self, game_actors, game_clocks, sounds, clock):
+        for powerup in game_actors.powerups:
+            if game_actors.swimmer.colliderect(powerup) and 'score' in powerup.image:
+                sounds.score_powerup.set_volume(0.5)
+                sounds.score_powerup.play()
+                game_actors.powerup_collision = True
+                powerup.pos = random.choice([250, 400, 550]), randint(-2000, -1600)
+                clock.schedule_unique(game_actors.stop_powerup, 5.0)
+                game_clocks.start_timer()
+
+    def coin_collision(self, game_actors, game_clocks, sounds):
+        for coin in game_actors.coins:
+            if game_actors.swimmer.colliderect(coin):
+                if game_actors.powerup_collision:
+                    game_clocks.score += 2
+                else:
+                    game_clocks.score += 1
+                sounds.coin.play()
+                coin.pos = randint(175, 625), randint(-800, -200)
 
     def shark_collision(self, game_actors, game_clocks, sounds):
         if game_actors.shark.colliderect(game_actors.swimmer) and not game_actors.shark.image == "shark_14":
@@ -355,7 +395,7 @@ class AnimationManager:
         else:
             self.animate_actor(self.moving_actors["bear"], self.moving_actors_states["bear_states"], update_interval=10)
 
-        self.animate_actor(self.moving_actors["poop"], self.moving_actors_states["poop_states"], update_interval=30)
+        self.animate_actor(self.moving_actors["poop"], self.moving_actors_states["poop_states"], update_interval=20, wait_time=30)
         if not self.not_hit:
             self.animate_actor(self.moving_actors["swimmer"], self.moving_actors_states["swimmer_states_hit"], update_interval=10)
         else:
@@ -380,9 +420,11 @@ class CompActors:
         self.poop_pos = "not_pooping"
 
     def pooping(self):
+
         if self.bear.waiting_time > 0:
             self.bear.waiting_time -= 1
             return
+
         if self.bear.y == self.pooping_pos:
             self.bear.waiting_time = 30
             if self.bear.x == 110:
@@ -392,6 +434,30 @@ class CompActors:
                 self.bear.image = "bear_poop_left"
                 self.poop.pos = self.bear.x - 150, self.bear.y
             self.poop_pos = "pooping_time"
+
+    def bear_actions(self, actor_movement, comp_actors, game_actors, sounds):
+        if game_actors.bear.waiting_time > 0:
+            if game_actors.bear.waiting_time == 30:
+                sounds.fart.set_volume(0.4)
+                sounds.fart.play()
+            elif game_actors.bear.waiting_time == 10:
+                sounds.water_splash.set_volume(0.2)
+                sounds.water_splash.play()
+        else:
+            actor_movement.reposition_actors(game_actors, comp_actors.bear, quantity=1)
+        if 630 > game_actors.poop.y > 0:
+            if "poop" in game_actors.bear.image:
+                game_actors.poop.y += 0.5
+            else:
+                game_actors.poop.y += 2.5
+        else:
+            comp_actors.poop_pos = "not_pooping"
+            game_actors.poop.y = -5000
+
+
+
+
+
 
 
 

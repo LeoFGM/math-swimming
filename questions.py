@@ -2,6 +2,7 @@ from random import shuffle
 from pgzero.rect import Rect
 
 
+
 class GameQuestions:
     def __init__(self):
         self.main_box = Rect(0, 0, 420, 250)
@@ -33,7 +34,6 @@ class GameQuestions:
         self.q10_e = ["What's the value of 4!?", "12", "24", "120", "6", 2]
 
         self.questions_e = [self.q1_e, self.q2_e, self.q3_e, self.q4_e, self.q5_e, self.q6_e, self.q7_e, self.q8_e, self.q9_e, self.q10_e]
-        shuffle(self.questions_e)
         self.question_e = self.questions_e.pop(0)
         #Medium questions
         self.q1_m = ["What is the value of x in the equation 2x + 5 = 15?", "4", "6", "5", "3", 3]
@@ -41,8 +41,14 @@ class GameQuestions:
         self.q3_m = ["What is the square root of 256?", "14", "16", "18", "20", 2]
         self.q4_m = ["What is the area of a triangle with a base of 10 and a height of 8?", "50", "40", "80", "30", 2]
         self.q5_m = ["If a car travels 120 km in 2 hours, what is its average speed?", "50 km/h", "70 km/h", "60 km/h", "80 km/h", 3]
+        self.q6_m = ["What is the value of 15×7−18?", "96", "105", "87", "93", 3]
+        self.q7_m = ["Solve for x: 4x+9=25", "x = 3", "x = 4", "x = 5", "x = 6", 2]
+        self.q8_m = ["What is the area of a triangle with a base of 8 units and height of 12 units?", "48", "50", "56", "60", 1]
+        self.q9_m = ["What is the value of 24/6 + 8 · 2?", "24", "20", "28", "30", 2]
+        self.q10_m = ["Simplify 5(3x−2)= 4x+1", "x = 3", "x = 4", "x = 1", "x = 2", 3]
 
-        self.questions_m = [self.q1_m, self.q2_m, self.q3_m, self.q4_m, self.q4_m, self.q5_m]
+
+        self.questions_m = [self.q1_m, self.q2_m, self.q3_m, self.q4_m, self.q5_m, self.q6_m, self.q7_m, self.q8_m, self.q9_m, self.q10_m]
         self.question_m = self.questions_m.pop(0)
 
         self.answer = None
@@ -54,10 +60,14 @@ class GameQuestions:
         if i == correct_answer_index:
             print("Correct answer")
             sound.correct_answer.play()
+            self.reset_questions_easy()
+            self.reset_questions_medium()
             return current_screen,'correct'
         else:
             print("incorrect answer")
             sound.incorrect_answer.play()
+            self.reset_questions_easy()
+            self.reset_questions_medium()
             return current_screen,'incorrect'
 
     def draw_questions(self, screen, time_left, question):
@@ -70,55 +80,44 @@ class GameQuestions:
         for index, box in enumerate(self.answer_boxes, start=1):
             screen.draw.textbox(question[index], box, color="black")
 
-    def analyze_answer_points(self, game_clocks):
-        if self.answer == 'correct' and (game_clocks.count_down_max >= 5):
-            game_clocks.score += 10
+    def analyze_answer(self, game_clocks):
+        if self.answer == 'correct':
+            if 'points' in self.question_screen:
+                game_clocks.score += 10
+            elif 'speed' in self.question_screen:
+                game_clocks.count_max -= 5
             self.answer = None
             self.question_screen = None
         elif self.answer == 'incorrect':
-            game_clocks.score -= 10
+            if 'points' in self.question_screen:
+                game_clocks.score -= 10
+            elif 'speed' in self.question_screen:
+                game_clocks.count_max += 5
             self.answer = None
             self.question_screen = None
 
-    def analyze_answer_speed(self, game_clocks):
-        if self.answer == 'correct':
-            game_clocks.count_max -= 5
-            self.answer = None
-            self.question_screen = None
-        elif self.answer == 'incorrect':
-            game_clocks.count_max += 5
-            self.answer = None
-            self.question_screen = None
+
 
     def reset_questions_easy(self):
-        self.questions_e = [self.q1_e, self.q2_e, self.q3_e, self.q4_e, self.q5_e, self.q6_e, self.q7_e, self.q8_e, self.q9_e, self.q10_e
-        ]
-        shuffle(self.questions_e)
-        self.question_e = self.questions_e.pop(0)
+        if self.questions_e:
+            self.question_e = self.questions_e.pop(0)
+            shuffle(self.questions_e)
+        else:
+            self.questions_e = [self.q1_e, self.q2_e, self.q3_e, self.q4_e, self.q5_e, self.q6_e, self.q7_e, self.q8_e, self.q9_e, self.q10_e]
+            shuffle(self.questions_e)
+            self.question_e = self.questions_e.pop(0)
 
     def reset_questions_medium(self):
-        self.questions_m = [self.q1_m, self.q2_m, self.q3_m, self.q4_m, self.q4_m, self.q5_m]
-        shuffle(self.questions_m)
-        self.question_m = self.questions_m.pop(0)
-
-        #Easy questions
-
-
-
-
+        if self.questions_m:
+            self.question_m = self.questions_m.pop(0)
+            shuffle(self.questions_m)
+        else:
+            self.questions_m = [self.q1_m, self.q2_m, self.q3_m, self.q4_m, self.q5_m, self.q6_m, self.q7_m, self.q8_m, self.q9_m, self.q10_m]
+            shuffle(self.questions_m)
+            self.question_m = self.questions_m.pop(0)
 
 
 
-
-
-#Medium questions
-
-
-
-
-
-
-#Hard questions
 
 
 

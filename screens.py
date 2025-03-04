@@ -19,7 +19,6 @@ class GameScreens:
         if game_actors.powerup_collision:
             screen.draw.text(f"Powerup activated for: {int(game_clocks.active_timer)}s", topleft=(20,60), fontsize=30, color="orange red")
 
-
     def draw_points_easy_screen(self, screen, game_clocks, game_actors, actor_movement):
         actor_movement.set_background(screen)
         game_actors.draw_actors(game_actors.swimmer, game_actors.q_block)
@@ -34,7 +33,6 @@ class GameScreens:
         screen.draw.text(f"Time: {game_clocks.count}", color="orange red", topleft=(20, 20), fontsize=40)
         if game_actors.powerup_collision:
             screen.draw.text(f"Powerup activated for: {int(game_clocks.active_timer)}s", topleft=(20,60), fontsize=30, color="orange red")
-
 
     def draw_points_medium_screen(self, screen, game_clocks, game_actors, actor_movement, comp_actors):
         actor_movement.set_background(screen)

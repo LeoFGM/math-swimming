@@ -88,14 +88,15 @@ def on_mouse_down(pos):
         'easy': {'difficulty_speed': 'speedrun_easy', 'difficulty_points': 'points_easy'},
         'medium': {'difficulty_speed': 'speedrun_medium', 'difficulty_points': 'points_medium'}
     }
+
     if clicked_actor in screen_transitions:
         new_screen = screen_transitions[clicked_actor]()
         if new_screen:
             sounds.select.play()
             current_screen = new_screen
         elif clicked_actor == 'pointsmania' or clicked_actor == 'speedrun' :
-            shuffle(game_questions.questions_e)
             shuffle(game_questions.questions_m)
+            shuffle(game_questions.questions_e)
         elif clicked_actor == 'goback':
             current_screen = 'start'
 
@@ -143,20 +144,9 @@ def handle_question_screen(pos):
 
             if game_questions.question_screen in question_screen_map:
                 current_screen, game_questions.answer = question_screen_map[game_questions.question_screen]()
-                if 'easy' in game_questions.question_screen:
-                    current_question_list = game_questions.questions_e
-                    game_questions.reset_questions_easy()
-                elif 'medium' in game_questions.question_screen:
-                    current_question_list = game_questions.questions_m
-                    game_questions.reset_questions_medium()
-                else:
-                    print("Error: Estado desconocido en question_screen")
-                    current_question_list = None
-                if not current_question_list:
-                    current_question_list = game_questions.used_questions[:]
-                    game_questions.used_questions.clear()
-                question = current_question_list.pop(0)
-                game_questions.used_questions.append(question)
+                game_questions.analyze_answer(game_clocks)
+
+
 
 def update():
     global current_screen
@@ -175,5 +165,6 @@ def update():
     elif current_screen == 'points_medium':
         actor_movement.moving_bg()
         current_screen = points_level_medium(game_clocks, game_actors, comp_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
+
 
 pgzrun.go()

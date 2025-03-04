@@ -60,6 +60,7 @@ def enable_music_restore():
     global restore_allowed
     restore_allowed = True
 
+
 music_list = {
     'speedrun_easy': "strength", 'points_easy': "behemoth", 'speedrun_medium': "monster", 'points_medium': "hero"
 }

@@ -9,7 +9,6 @@ class GameClocks:
         self.count = 0
         self.show_count = False
         self.action = 0
-        self.action1 = 0
         self.score = 0
         self.active_timer = 0
         self.time_duration = 5
