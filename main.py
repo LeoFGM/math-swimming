@@ -1,12 +1,9 @@
 import pgzrun
+import pygame
 
-from actors import GameActors, ActorMovementInteractions, AnimationManager, CompActors
-from changevar import GameClocks
-from levels import *
-from questions import *
-from screens import MenuScreens, GameScreens, GameOverScreens, QuestionScreens
-from settings import settings
-from musicals import music_list
+from game import (GameActors, ActorMovementInteractions, AnimationManager, CompActors, GameClocks,
+                  speedrun_level_easy, points_level_easy, speedrun_level_medium, points_level_medium,
+                  GameQuestions, MenuScreens, GameScreens, GameOverScreens, QuestionScreens, settings, MusicalActions)
 
 pygame.init()
 
@@ -19,6 +16,7 @@ actor_animation = AnimationManager(game_actors)
 actor_movement = ActorMovementInteractions(actor_animation)
 comp_actors = CompActors(game_actors)
 game_questions = GameQuestions()
+music_actions = MusicalActions()
 current_screen = 'start'
 
 #Game state variables
@@ -71,7 +69,7 @@ def on_mouse_down(pos):
             return current_screen
 
     print(f"Current screen: '{current_screen}'")
-    print(f"Music list keys: {list(music_list.keys())}")
+    print(f"Music list keys: {list(music_actions.music_list.keys())}")
 
 
     clicked_actor = game_actors.handle_mouse_down(pos)
@@ -94,16 +92,12 @@ def on_mouse_down(pos):
         if new_screen:
             sounds.select.play()
             current_screen = new_screen
-        elif clicked_actor == 'pointsmania' or clicked_actor == 'speedrun' :
-            shuffle(game_questions.questions_m)
-            shuffle(game_questions.questions_e)
+        elif clicked_actor == 'pointsmania' or clicked_actor == 'speedrun':
+            pass
         elif clicked_actor == 'goback':
             current_screen = 'start'
 
     elif clicked_actor in difficulty_transitions:
-        #print(f"Clicked actor: {clicked_actor}")
-        #print(f"Current screen: {current_screen}")
-        #print(f"Difficulties: {difficulty_transitions[clicked_actor]}")
 
         if current_screen in difficulty_transitions[clicked_actor]:
             print(f"Transitioning to: {difficulty_transitions[clicked_actor][current_screen]}")
@@ -111,10 +105,11 @@ def on_mouse_down(pos):
                 clicked_actor, difficulty_transitions[clicked_actor]
             )
             game_actors.hide_level_selection_actors()
-            if current_screen in music_list:
-                print(f"Playing: {music_list[current_screen]}")
+            game_questions.get_first_question(current_screen)
+            if current_screen in music_actions.music_list:
+                print(f"Playing: {music_actions.music_list[current_screen]}")
                 music.stop()
-                music.play(music_list[current_screen])
+                music.play(music_actions.music_list[current_screen])
         else:
             print(f"Error: '{current_screen}' not found in {difficulty_transitions[clicked_actor]}")
 
@@ -127,7 +122,7 @@ def on_mouse_down(pos):
 def handle_question_screen(pos):
     global current_screen
 
-    for index, box in enumerate(game_questions.answer_boxes, start=1):
+    for index, box in enumerate(game_questions.answer_boxes, start=0):
         if box.collidepoint(pos):
             print(current_screen)
             print(f"Checking box {index} at position {pos}")
@@ -145,6 +140,7 @@ def handle_question_screen(pos):
             if game_questions.question_screen in question_screen_map:
                 current_screen, game_questions.answer = question_screen_map[game_questions.question_screen]()
                 game_questions.analyze_answer(game_clocks)
+                game_questions.get_first_question(current_screen)
 
 
 
@@ -154,14 +150,14 @@ def update():
         actor_animation.static_update_animations()
         actor_movement.scroll = 0
     elif current_screen == 'speedrun_easy':
-        current_screen = speedrun_level_easy(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
+        current_screen = speedrun_level_easy(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, music_actions, sounds)
         actor_movement.moving_bg()
     elif current_screen == 'points_easy':
         current_screen = points_level_easy(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
         actor_movement.moving_bg()
     elif current_screen == 'speedrun_medium':
         actor_movement.moving_bg()
-        current_screen = speedrun_level_medium(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
+        current_screen = speedrun_level_medium(game_clocks, game_actors, actor_movement, actor_animation, game_questions, current_screen, music_actions, sounds)
     elif current_screen == 'points_medium':
         actor_movement.moving_bg()
         current_screen = points_level_medium(game_clocks, game_actors, comp_actors, actor_movement, actor_animation, game_questions, current_screen, sounds)
