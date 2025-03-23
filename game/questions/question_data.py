@@ -7,7 +7,10 @@ EASY_QUESTIONS = [{"question": "What is the value of x in: 2x + 3 = 9", "answers
                   {"question": "If x = 3, y = 2, what's the value of 2x + 3y?", "answers": ["8", "14", "12", "11"] , "correct": 2},
                   {"question": "What is the square root of 8100?", "answers": ["81", "30", "60", "90"] , "correct": 3},
                   {"question": "What's the next number of the sequence. 2, 4, 8, 16,___", "answers": ["26", "24", "32", "36"] , "correct": 2},
-                  {"question": "What's the value of 4!?", "answers": ["12", "24", "120", "6"] , "correct": 1}]
+                  {"question": "What's the value of 4!?", "answers": ["12", "24", "120", "6"] , "correct": 1},
+                  {"question": "What's the chance of getting a even number on a 6 sided dice?", "answers": ["1/6", "4/6", "2/6", "1/2"], "correct": 3},
+                  {"question": "In how many ways can you mix 5 different books on a shelf?", "answers": ["50", "100", "120", "60"], "correct": 2},
+                  {"question": "What is bigger?: 2x2x2 or 7 + 1", "answers": ["2x2x2", "They are the same", "7 + 1", "None"], "correct": 1}]
 
 MEDIUM_QUESTIONS = [{"question": "What is the value of x in the equation 2x + 5 = 15?", "answers": ["4", "6", "5", "3"], "correct": 2},
                     {"question": "What is 15×12?", "answers": ["180", "200", "150", "165"], "correct": 0},
@@ -19,6 +22,7 @@ MEDIUM_QUESTIONS = [{"question": "What is the value of x in the equation 2x + 5 
                     {"question": "What is the area of a triangle with a base of 8 units and height of 12 units?", "answers": ["48", "50", "56", "60"], "correct": 0},
                     {"question": "What is the value of 24/6 + 8 · 2?", "answers": ["24", "20", "28", "30"], "correct": 1},
                     {"question": "Simplify 5(3x−2)= 4x+1", "answers": ["x = 3", "x = 4", "x = 1", "x = 2"], "correct": 2}]
+
 
 
 

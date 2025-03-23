@@ -1,6 +1,7 @@
 from random import shuffle
 from pgzero.rect import Rect
 from game.questions.question_data import EASY_QUESTIONS, MEDIUM_QUESTIONS
+from constants import QuestionStates, Answers, GameState
 
 
 class GameQuestions:
@@ -27,11 +28,13 @@ class GameQuestions:
             x = 50 if i % 2 == 0 else 450
             y = 375 if i < 2 else 475
             box.move_ip(x, y)
+            print(f"Answer box {i} positioned at: {box.topleft}")  # Debugging
+
 
     def get_first_question(self, current_screen):
-        if 'easy' in current_screen:
+        if GameState.SPEEDRUN_EASY == current_screen or GameState.POINTS_EASY == current_screen:
             self.question_e = self._get_next_question(self.questions_e)
-        elif 'medium' in current_screen:
+        elif GameState.SPEEDRUN_MEDIUM == current_screen or GameState.POINTS_MEDIUM == current_screen:
             self.question_m = self._get_next_question(self.questions_m)
 
     def _get_next_question(self, questions):
@@ -45,11 +48,11 @@ class GameQuestions:
         if i == correct_answer_index:
             print("Correct answer")
             sound.correct_answer.play()
-            self.answer = 'correct'
+            self.answer = Answers.CORRECT
         else:
             print("incorrect answer")
             sound.incorrect_answer.play()
-            self.answer = 'incorrect'
+            self.answer = Answers.INCORRECT
         self.reset_questions()
         return current_screen, self.answer
 
@@ -64,12 +67,12 @@ class GameQuestions:
             screen.draw.textbox(question["answers"][index], box, color="black")
 
     def analyze_answer(self, game_clocks):
-        if self.answer == 'correct':
+        if self.answer == Answers.CORRECT:
             if 'points' in self.question_screen:
                 game_clocks.score += 10
             elif 'speed' in self.question_screen:
                 game_clocks.count_max -= 5
-        elif self.answer == 'incorrect':
+        elif self.answer == Answers.INCORRECT:
             if 'points' in self.question_screen:
                 game_clocks.score -= 10
             elif 'speed' in self.question_screen:
@@ -80,10 +83,10 @@ class GameQuestions:
 
 
     def reset_questions(self):
-        if 'easy' in self.question_screen:
+        if QuestionStates.SPEED_EASY == self.question_screen or QuestionStates.POINTS_EASY == self.question_screen:
             self.questions_e = EASY_QUESTIONS.copy()
             shuffle(self.questions_e)
-        elif 'medium' in self.question_screen:
+        if QuestionStates.SPEED_MEDIUM == self.question_screen or QuestionStates.POINTS_MEDIUM == self.question_screen:
             self.questions_m = MEDIUM_QUESTIONS.copy()
             shuffle(self.questions_m)
 

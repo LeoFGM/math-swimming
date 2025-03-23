@@ -8,7 +8,7 @@ from .levels import (
 )
 
 from .questions import GameQuestions
-from .screens import MenuScreens, GameScreens, GameOverScreens, QuestionScreens
+from .screens import Screen, MenuScreens, GameScreens, GameOverScreens, QuestionScreens
 from .settings import settings
 from .musicals import MusicalActions
 
@@ -24,6 +24,7 @@ __all__ = [
     'speedrun_level_medium',
     'points_level_medium',
     'GameQuestions',
+    'Screen',
     'MenuScreens',
     'GameScreens',
     'GameOverScreens',
