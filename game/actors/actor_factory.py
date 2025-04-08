@@ -69,6 +69,7 @@ class ActorStorage:
             "bear": self.new_actor("bear", (random.choice([110, 700]), randint(-1000, -800)), x_locked=True, x_positions=[110, 700], first=-1000, last=-800),
             "poop": self.new_actor("poop", (random.choice([110, 700]), randint(-1000, -800))),
             "glasses": self.new_actor("glasses", (random.choice([250, 550]), randint(-1000, -800)), x_locked=True, first=-1000, last=-800),
+            "inversion_portal": self.new_actor("inversion_portal", (random.choice([250, 400, 550]), randint(-3000, -2500)), x_locked=True, first=-3000, last=-2500)
         }
 
     def create_difficulty_actors(self):
@@ -105,9 +106,17 @@ class ActorStorage:
             "shark_states": ["shark", "shark_1", "shark_2", "shark_3", "shark_4", "shark_5", "shark_6", "shark_7", "shark_8", "shark_9", "shark_10", "shark_11", "shark_12", "shark_13", "shark_14"],
             "bear_states": ["bear", "bear_1"],
             "poop_states": ["poop", "poop_1", "poop_2"],
-            "glasses_states": ["glasses", "glasses_1", "glasses_2", "glasses_3"],
+            "glasses_states": ["glasses", "glasses_1", "glasses_2", "glasses_3", "glasses_4", "glasses"],
             "q_block_states": ["question_block", "question_block_1"],
+            "swimmer_inv_states": ["swimmer_inv", "swimmer_inv_1", "swimmer_inv_2", "swimmer_inv_3"],
+            "swimmer_inv_hit_states": ["swimmer_inv", "swimmer_hit", "swimmer_inv_1", "swimmer_hit", "swimmer_inv_2", "swimmer_inv_3"],
+            "shark_inv_states": ["shark_inv", "shark_inv_1", "shark_inv_2", "shark_inv_3", "shark_inv_4", "shark_inv_5", "shark_inv_6", "shark_inv_7", "shark_inv_8", "shark_inv_9", "shark_inv_10", "shark_inv_11", "shark_inv_12", "shark_inv_13"],
+            "bear_inv_states": ["bear_inv", "bear_inv_1"],
+            "poop_inv_states": ["poop_inv", "poop_inv_1", "poop_inv_2"],
+            "swimmer_push_states": ["swimmer_push", "swimmer_push_1", "swimmer_push_2", "swimmer_push_3"],
+            "swimmer_push_hit_states": ["swimmer_push", "swimmer_hit", "swimmer_push_1", "swimmer_hit", "swimmer_push_2", "swimmer_push_3"]
         }
+
 
     def create_difficulty_states(self):
         return {
@@ -122,12 +131,14 @@ class ActorStorage:
         return {
             "speed_powerup_states": ["speed_powerup", "speed_powerup_1", "speed_powerup_2"],
             "score_powerup_states": ["score_powerup", "score_powerup_1", "score_powerup_2", "score_powerup_3", "score_powerup_4", "score_powerup_5", "score_powerup_6", "score_powerup_7", "score_powerup_8", "score_powerup_9", "score_powerup_10", "score_powerup_11"],
+            "push_powerup_states": ["push_powerup", "push_powerup_1"]
         }
 
     def create_obstacle_states(self):
         return {
             "log_states": ["log", "log_1"],
             "coin_states": ["coin", "coin_1", "coin_2"],
+            "log_inv_states": ["log_inv", "log_inv_1"]
         }
 
     def get_actors(self):

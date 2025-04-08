@@ -1,6 +1,7 @@
 import random
 from random import randint
-from pgzero.actor import Actor
+
+from .actor_movement_interactions import  ActorMovementManager
 from game.settings import settings
 from game.actors.actor_factory import ActorStorage
 
@@ -30,10 +31,12 @@ class GameActors:
         self.bear = self.actors["game_actors"]["bear"]
         self.poop = self.actors["game_actors"]["poop"]
         self.glasses = self.actors["game_actors"]["glasses"]
+        self.inversion_portal = self.actors["game_actors"]["inversion_portal"]
         self.coins = []
         self.logs = []
         self.powerups = []
         self.powerup_collision = False
+        self.push_powerup_active = False
 
         self.static_actors = [
             (self.gamename, self.actor_states["menu_states"]["gamename_states"], 15, 0),
@@ -58,14 +61,44 @@ class GameActors:
             "swimmer": self.swimmer,
             "bear": self.bear,
             "poop": self.poop,
-            "glasses": self.glasses
+            "glasses": self.glasses,
+            "inversion_portal": self.inversion_portal
         }
 
     def get_moving_actors_states(self):
         return self.actor_states
 
-    def stop_powerup(self):
+    def stop_powerup(self, game_clocks):
         self.powerup_collision = False
+        for powerup in self.powerups:
+            if 'speed' in powerup.image:
+                game_clocks.stop_timer('speed_powerup')
+            elif 'score' in powerup.image:
+                game_clocks.stop_timer('score_powerup')
+
+    def deactivate_push_powerup(self, game_clocks):
+        print("Deactivating push_powerup")
+        self.push_powerup_active = False
+        print(self.push_powerup_active)
+        game_clocks.stop_timer('push_powerup')
+        self.reset_pushed_logs()
+
+    def reset_pushed_logs(self):
+        for log in self.logs:
+            if hasattr(log, 'is_being_pushed'):
+                # Get original lane if available, otherwise assign random
+                if hasattr(log, 'original_pos'):
+                    x_pos = log.original_pos[0]  # Keep original x position
+                else:
+                    x_pos = random.choice(ActorMovementManager.DEFAULT_POSITIONS)
+
+                log.pos = (x_pos, randint(-800, -500))
+
+                # Clean up push state
+                for attr in ['is_being_pushed', 'push_start_time', 'original_pos']:
+                    if hasattr(log, attr):
+                        delattr(log, attr)
+
 
     def create_and_draw_actors(self, *actor_groups):
         for group in actor_groups:
@@ -80,6 +113,7 @@ class GameActors:
         self.logs.clear()
         self.coins.clear()
         self.powerups.clear()
+        self.push_powerup_active = False
 
     def set_actor_position(self, actor, position):
         actor.pos = position

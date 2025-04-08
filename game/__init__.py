@@ -8,7 +8,7 @@ from .levels import (
 )
 
 from .questions import GameQuestions
-from .screens import Screen, MenuScreens, GameScreens, GameOverScreens, QuestionScreens
+from .screens import Screen, MenuScreens, GameScreens, GameOverScreens, QuestionScreens, TransitionManager
 from .settings import settings
 from .musicals import MusicalActions
 
@@ -29,6 +29,7 @@ __all__ = [
     'GameScreens',
     'GameOverScreens',
     'QuestionScreens',
+    'TransitionManager',
     'settings',
     'MusicalActions'
 ]
