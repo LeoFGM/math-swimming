@@ -1,7 +1,9 @@
 from random import shuffle
 from pgzero.rect import Rect
-from game.questions.question_data import EASY_QUESTIONS, MEDIUM_QUESTIONS
-from constants import QuestionStates, Answers, GameState
+from .question_data import EASY_QUESTIONS, MEDIUM_QUESTIONS
+from game.constants import QuestionStates, Answers, GameState
+
+from ...core.context import GameContext
 
 
 class GameQuestions:
@@ -9,7 +11,7 @@ class GameQuestions:
         self.main_box = Rect(0, 0, 420, 250)
         self.timer_box = Rect(0, 0, 230, 125)
         self.answer_boxes = [Rect(0, 0 , 300, 75) for _ in range(4)]
-        self.time_left_e = 10
+        self.question_timer = None
         self._position_boxes()
 
         self.question_screen = None
@@ -43,7 +45,7 @@ class GameQuestions:
             shuffle(questions)
         return questions.pop(0)
 
-    def update_question_state(self, i, question, sound, current_screen):
+    def update_question_state(self, i, question, sound, target_screen):
         correct_answer_index = question["correct"]
         if i == correct_answer_index:
             print("Correct answer")
@@ -54,14 +56,17 @@ class GameQuestions:
             sound.incorrect_answer.play()
             self.answer = Answers.INCORRECT
         self.reset_questions()
-        return current_screen, self.answer
+        return target_screen, self.answer
 
     def draw_questions(self, screen, time_left, question):
         screen.draw.filled_rect(self.main_box, "sky blue")
         screen.draw.filled_rect(self.timer_box, "sky blue")
         for box in self.answer_boxes:
             screen.draw.filled_rect(box, "medium slate blue")
-        screen.draw.textbox(str(time_left), self.timer_box, color="black")
+
+        screen.draw.filled_rect(self.timer_box, "sky blue")
+        screen.draw.textbox(str(int(time_left)), self.timer_box, color="black")
+
         screen.draw.textbox(question["question"], self.main_box, color="black")
         for index, box in enumerate(self.answer_boxes):
             screen.draw.textbox(question["answers"][index], box, color="black")
@@ -90,8 +95,37 @@ class GameQuestions:
             self.questions_m = MEDIUM_QUESTIONS.copy()
             shuffle(self.questions_m)
 
+    def on_timeout(self, context: GameContext(), sounds):
+        # Determine which game mode to return to
+        if self.question_screen == QuestionStates.POINTS_EASY:
+            target_screen = GameState.POINTS_EASY
+        elif self.question_screen == QuestionStates.POINTS_MEDIUM:
+            target_screen = GameState.POINTS_MEDIUM
+        elif self.question_screen == QuestionStates.SPEED_EASY:
+            target_screen = GameState.SPEEDRUN_EASY
+        elif self.question_screen == QuestionStates.SPEED_MEDIUM:
+            target_screen = GameState.SPEEDRUN_MEDIUM
+        else:
+            target_screen = context.current_screen  # fallback
 
+        # Process as wrong answer
+        question = self.question_e if self.question_screen in [QuestionStates.POINTS_EASY, QuestionStates.SPEED_EASY] else self.question_m
 
+        if question:
+            # Mark answer as wrong
+            context.current_screen, self.answer = self.update_question_state(
+                -1, question, sounds, target_screen
+            )
+            self.analyze_answer(context.clock)
+            self.get_first_question(target_screen)
+
+            # Clear question screen state
+            self.question_screen = None
+
+            # Return to gameplay
+            return target_screen
+
+        return context.current_screen
 
 
 

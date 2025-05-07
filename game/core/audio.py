@@ -8,14 +8,14 @@ class MusicalActions:
     MUSIC_EXTENSION = ".ogg"
     def __init__(self):
         self.music_list = {'speedrun_easy': "strength", 'points_easy': "behemoth", 'speedrun_medium': "monster",'points_medium': "hero"}
+
         self.current_music = None
         self.current_position = 0
         self.restore_allowed = True
 
 
     def change_music_temporarily(self, new_music, duration, initial_music):
-        print("function activated")
-        if pygame.mixer.music.get_busy():
+        if pygame.mixer.music.get_busy(): #Gets the last position of the music
             current_music = initial_music
             current_position = pygame.mixer.music.get_pos()
             pygame.mixer.music.pause()
@@ -24,7 +24,6 @@ class MusicalActions:
         pygame.mixer.music.pause()
 
         #Play new music
-        print(f"Playing temporary music: {new_music}")
         pygame.mixer.music.load(f"{self.MUSIC_FOLDER}/{new_music}{self.MUSIC_EXTENSION}")
         pygame.mixer.music.play()
         pygame.mixer.music.fadeout(duration * 1000)
@@ -48,6 +47,7 @@ class MusicalActions:
         threading.Thread(target=delayed_restore).start()
 
     def disable_music_restore(self):
+        #Disables music restoration to avoid problems
         self.restore_allowed = False
         try:
             if pygame.mixer.music.get_busy():
@@ -56,6 +56,7 @@ class MusicalActions:
             print(f"Error al detener la música: {e}")
 
     def enable_music_restore(self):
+        #Enables it again
         self.restore_allowed = True
 
 

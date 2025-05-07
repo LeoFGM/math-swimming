@@ -2,7 +2,7 @@ import random
 
 from pgzero.actor import Actor
 from random import randint
-from game.settings import settings
+from game.core.settings import settings
 
 HIDDEN_POSITION = (-500, -500)
 
@@ -25,7 +25,7 @@ class ActorStorage:
             "obstacle_states": self.create_obstacle_states(),
         }
 
-    def new_actor(self, image_name, position=None, actor_list=None, special_x=None, x_locked=False, x_positions=None, first=None, last=None):
+    def new_actor(self, image_name, position=None, actor_list=None, category=None, subcategory=None, special_x=None, x_locked=False, x_positions=None, first=None, last=None):
         if position is None:
             position = (self.center_x, 0)
 
@@ -37,7 +37,20 @@ class ActorStorage:
         actor.x_positions = None
 
         if actor_list is not None:
-            actor_list.append(actor)
+            if isinstance(actor_list, list):
+                actor_list.append(actor)
+            elif isinstance(actor_list, dict):
+                actor_list[image_name] = actor
+
+        elif category is not None:
+            if category not in self.actors:
+                self.actors[category] = {}
+            if subcategory:
+                if subcategory not in self.actors[category]:
+                    self.actors[category][subcategory] = []
+                self.actors[category][subcategory].append(actor)
+            else:
+                self.actors[category][image_name] = actor
 
         if special_x is not None:
             actor.x = special_x
@@ -64,12 +77,14 @@ class ActorStorage:
     def create_game_actors(self):
         return {
             "swimmer": self.new_actor("swimmer", (self.center_x, 550)),
-            "q_block": self.new_actor("question_block", (self.center_x, randint(-2000, -1600)), first=-2000, last=-1600),
+            "q_block": self.new_actor("question_block", (self.center_x, randint(-2000, -1600)), x_locked=True, first=-2000, last=-1600),
             "shark": self.new_actor("shark", (randint(250, 550), randint(-800, -400)), x_locked=True, first=-800, last=-400),
             "bear": self.new_actor("bear", (random.choice([110, 700]), randint(-1000, -800)), x_locked=True, x_positions=[110, 700], first=-1000, last=-800),
-            "poop": self.new_actor("poop", (random.choice([110, 700]), randint(-1000, -800))),
+            "poop": self.new_actor("poop", (random.choice([110, 700]), randint(-1000, -800)), first=-5000, last=-4900),
             "glasses": self.new_actor("glasses", (random.choice([250, 550]), randint(-1000, -800)), x_locked=True, first=-1000, last=-800),
-            "inversion_portal": self.new_actor("inversion_portal", (random.choice([250, 400, 550]), randint(-3000, -2500)), x_locked=True, first=-3000, last=-2500)
+            "inversion_portal": self.new_actor("inversion_portal", (random.choice([250, 400, 550]), randint(-3000, -2500)), x_locked=True, first=-3000, last=-2500),
+            "swimmer_cap": self.new_actor("swimmer_cap", position=(random.choice([250, 400, 550]), randint(-2500, -1200)), x_locked=True, first=-2500, last=-1200)
+
         }
 
     def create_difficulty_actors(self):
@@ -85,16 +100,20 @@ class ActorStorage:
         return {
             "speed_powerup": self.new_actor("speed_powerup", HIDDEN_POSITION),
             "score_powerup": self.new_actor("score_powerup", HIDDEN_POSITION),
+
         }
 
     def create_obstacles(self):
         return {
             "log": self.new_actor("log", HIDDEN_POSITION),
             "coin": self.new_actor("coin", HIDDEN_POSITION),
+            "bird": self.new_actor("bird", HIDDEN_POSITION),
+            "egg": self.new_actor("egg", HIDDEN_POSITION)
         }
 
     def create_menu_states(self):
         return {
+            "start_states": ["start", "start_1", "start_2", "start_3", "start_4", "start_5", "start"],
             "gamename_states": ["title", "title_2", "title_3", "title_4"],
             "gamemode_states": ["selgamemode_1", "selgamemode_2", "selgamemode_3", "selgamemode_4"],
         }
@@ -114,7 +133,11 @@ class ActorStorage:
             "bear_inv_states": ["bear_inv", "bear_inv_1"],
             "poop_inv_states": ["poop_inv", "poop_inv_1", "poop_inv_2"],
             "swimmer_push_states": ["swimmer_push", "swimmer_push_1", "swimmer_push_2", "swimmer_push_3"],
-            "swimmer_push_hit_states": ["swimmer_push", "swimmer_hit", "swimmer_push_1", "swimmer_hit", "swimmer_push_2", "swimmer_push_3"]
+            "swimmer_push_hit_states": ["swimmer_push", "swimmer_hit", "swimmer_push_1", "swimmer_hit", "swimmer_push_2", "swimmer_push_3"],
+            "swimmer_cap_states":["swimmer_cap", "swimmer_cap_1", "swimmer_cap_2", "swimmer_cap_1"],
+            "bird_states": ["bird", "bird_1"],
+            "egg_states": ["egg", "egg_cracking"],
+            "egg_debris_states": ["egg_shell", "egg_cracked"]
         }
 
 
@@ -131,7 +154,8 @@ class ActorStorage:
         return {
             "speed_powerup_states": ["speed_powerup", "speed_powerup_1", "speed_powerup_2"],
             "score_powerup_states": ["score_powerup", "score_powerup_1", "score_powerup_2", "score_powerup_3", "score_powerup_4", "score_powerup_5", "score_powerup_6", "score_powerup_7", "score_powerup_8", "score_powerup_9", "score_powerup_10", "score_powerup_11"],
-            "push_powerup_states": ["push_powerup", "push_powerup_1"]
+            "push_powerup_states": ["push_powerup", "push_powerup_1"],
+            "magnet_powerup_states": ["magnet_powerup", "magnet_powerup_1", "magnet_powerup_2"]
         }
 
     def create_obstacle_states(self):

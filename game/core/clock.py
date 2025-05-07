@@ -1,4 +1,5 @@
 import time
+from gc import callbacks
 
 from pgzero import clock
 
@@ -6,12 +7,14 @@ from pgzero import clock
 
 class GameClocks:
     def __init__(self):
-        self.count_max = 60
-        self.count_down_max = 60
+        #Gameplay attributes
+        self.count_max = 90
+        self.count_down_max = 90
         self.count = 0
         self.show_count = False
         self.action = 0
         self.score = 0
+        #Timers attributes
         self.active_timers = {}
         self.level_start_time = 0
         self.level_elapsed_time = 0
@@ -19,7 +22,10 @@ class GameClocks:
         self.is_paused = False
         self.last_update_time = time.time()
 
+        self.shield = 0
 
+
+    #Level's timer logic
     def start_level_timer(self):
         self.level_start_time = time.time()
         self.level_elapsed_time = 0
@@ -42,7 +48,7 @@ class GameClocks:
         return time.time() - self.level_start_time
 
     def countup(self):
-        if self.count_max == 60:
+        if self.count_max == 90:
             self.start_level_timer()
         if self.count < self.count_max:
             self.count_max -= 1
@@ -60,38 +66,43 @@ class GameClocks:
 
     def reset_variables(self):
         self.count = 0
-        self.count_max = 60
-        self.count_down_max = 60
+        self.count_max = 90
+        self.count_down_max = 90
         self.action = 0
         self.score = 0
         self.level_elapsed_time = 0
         self.level_start_time = 0
+        self.shield = 0
         self.time_paused = 0
         self.is_paused = False
         return
 
-    def start_timer(self, timer_name, duration):
+    #General timer methods
+    def start_timer(self, timer_name, duration, callback=None):
         self.active_timers[timer_name] = {
             'duration': duration,
             'remaining': duration,
-            'start_time': time.time()
-        }
+            'start_time': time.time(),
+            'callback': callback
+        } #Dict to save all values necessary
 
-
-    def update_timers(self, dt):
+    def update_timers(self, dt, callback=None):
         current_time = time.time()
         elapsed = current_time - self.last_update_time
         self.last_update_time = current_time
 
-        timer_names = list(self.active_timers.keys())
-
-        for timer_name in timer_names:
-            if timer_name in self.active_timers:  # Check if still exists
+        for timer_name in list(self.active_timers.keys()): #Creates a copy of the dict
+            if timer_name in self.active_timers:  #In case there's more than 1 timer at the same time
                 timer = self.active_timers[timer_name]
                 timer['remaining'] = max(0, timer['remaining'] - elapsed)
 
-                if timer['remaining'] <= 0:
+                if timer['remaining'] <= 0: #Action when the timer reaches 0
+                    if timer['callback']:
+                        timer['callback']()
+                    if callback and timer_name == 'question_timer':
+                        callback()
                     self.stop_timer(timer_name)
+
 
     def stop_timer(self, timer_name):
         if timer_name in self.active_timers:

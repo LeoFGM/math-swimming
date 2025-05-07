@@ -1,9 +1,7 @@
-from .actor_management import GameActors
-from .actor_movement_interactions import ActorMovementInteractions
-from .actor_animations import AnimationManager
-from .complicated_actors import CompActors
+from .management.factory import ActorStorage
+from .management.groups import GameActors
+from .behaviors.complex import CompActors
+from .systems.animation import AnimationManager
+from .systems.movement import ActorMovementInteractions
 
-__all__ = ['GameActors',
-           'ActorMovementInteractions',
-           'AnimationManager',
-           'CompActors']
+__all__ = ['ActorStorage', 'GameActors', 'CompActors', 'AnimationManager', 'ActorMovementInteractions']
